@@ -1,0 +1,16 @@
+<script lang="ts" setup>
+import TheHeader from "@/components/TheHeader.vue";
+import TheFooter from "@/components/TheFooter.vue";
+import TheSonner from "@/components/ui/sonner/TheSonner.vue";
+</script>
+<template>
+	<TheHeader />
+
+	<main>
+		<RouterView />
+	</main>
+
+	<TheFooter />
+
+	<TheSonner />
+</template>

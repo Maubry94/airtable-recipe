@@ -1,0 +1,29 @@
+{
+  "name": "airtable-recipe",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "workspaces": [
+    "./vue",
+    "./duplo",
+    "./libs/client-types"
+  ],
+  "scripts": {
+    "clear": "./scripts/clear.sh",
+    "dev": "docker compose up --build",
+    "dev:vue": "npm -w @airtable-recipe/vue run dev",
+    "dev:duplo": "npm -w @airtable-recipe/duplo run dev"
+  },
+  "contributors": [
+    {
+      "name": "Vitaalx",
+      "url": "https://github.com/Vitaalx"
+    },
+    {
+      "name": "Maubry94",
+      "url": "https://github.com/Maubry94"
+    }
+  ],
+  "description": "Application de gestion de recettes de cuisine personnalisées avec analyse nutritionnelle.",
+  "license": "ISC"
+}

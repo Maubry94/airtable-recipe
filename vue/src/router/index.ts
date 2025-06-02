@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import edito, { notFound } from "@/domains/edito/router";
-import recipe from "@/domains/Recipe/router";
+import recipe from "@/domains/recipe/router";
 import admin, { routerPageNameAdmin } from "@/domains/admin/router";
 import { useUserAdminInformation } from "@/domains/admin/composables/useUserAdminInformation";
 
@@ -19,6 +19,13 @@ const router = createRouter({
 		},
 		notFound(),
 	],
+	scrollBehavior(_to, _from, savedPosition) {
+		if (savedPosition) {
+			return savedPosition;
+		} else {
+			return { top: 0 };
+		}
+	},
 });
 
 router.beforeEach((to, _from, next) => {

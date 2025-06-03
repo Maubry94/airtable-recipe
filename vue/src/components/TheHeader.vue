@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { useRoute } from "vue-router";
+import { routerPageName } from "@/router/routerPageName";
 import TheIcon from "@/components/TheIcon.vue";
 import { TheButton } from "@/components/ui/button";
-import { routerPageName } from "@/router/routerPageName";
+import MobileNav from "./MobileNav.vue";
 
 const route = useRoute();
 const { HOME_PAGE, RECIPE_PAGE, RECIPE_CREATE_PAGE } = routerPageName;
@@ -76,7 +77,7 @@ function isActive(routeName: string) {
 					</TheButton>
 				</div>
 
-				<!-- TODO: Mobile menu -->
+				<MobileNav />
 			</div>
 		</div>
 	</header>

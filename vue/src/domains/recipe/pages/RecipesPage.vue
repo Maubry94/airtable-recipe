@@ -5,11 +5,10 @@ import { ref, computed } from "vue";
 import TheIcon from "@/components/TheIcon.vue";
 import { TheButton } from "@/components/ui/button";
 import { TheInput } from "@/components/ui/input";
-import { TheCard, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { TheBadge } from "@/components/ui/badge";
 import { TheSelect, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import RecipeCard from "@/domains/recipe/components/RecipeCard.vue";
 
-const { RECIPE_CREATE_PAGE, RECIPE_DETAIL_PAGE } = routerPageName;
+const { RECIPE_CREATE_PAGE } = routerPageName;
 const searchQuery = ref("");
 const selectedDishType = ref("all");
 const selectedPersonCount = ref("all");
@@ -30,14 +29,14 @@ const filteredRecipes = computed(() => mockRecipes.filter((recipe) => {
 	const matchesSearch = recipe.fields.name.toLowerCase().includes(searchQuery.value.toLowerCase());
 	const matchesDishType = selectedDishType.value === "all" || recipe.fields.dishType === selectedDishType.value;
 	const matchesPersonCount = selectedPersonCount.value === "all"
-			|| (selectedPersonCount.value === "1-2" && recipe.fields.PersonCount <= PERSONS_COUNT.TWO)
-			|| (selectedPersonCount.value === "3-4"
-				&& recipe.fields.PersonCount >= PERSONS_COUNT.THREE
-				&& recipe.fields.PersonCount <= PERSONS_COUNT.FOUR)
-			|| (selectedPersonCount.value === "5-6"
-				&& recipe.fields.PersonCount >= PERSONS_COUNT.FIVE
-				&& recipe.fields.PersonCount <= PERSONS_COUNT.SIX)
-			|| (selectedPersonCount.value === "7+" && recipe.fields.PersonCount >= PERSONS_COUNT.SEVEN);
+            || (selectedPersonCount.value === "1-2" && recipe.fields.PersonCount <= PERSONS_COUNT.TWO)
+            || (selectedPersonCount.value === "3-4"
+                && recipe.fields.PersonCount >= PERSONS_COUNT.THREE
+                && recipe.fields.PersonCount <= PERSONS_COUNT.FOUR)
+            || (selectedPersonCount.value === "5-6"
+                && recipe.fields.PersonCount >= PERSONS_COUNT.FIVE
+                && recipe.fields.PersonCount <= PERSONS_COUNT.SIX)
+            || (selectedPersonCount.value === "7+" && recipe.fields.PersonCount >= PERSONS_COUNT.SEVEN);
 
 	return matchesSearch && matchesDishType && matchesPersonCount;
 }));
@@ -144,98 +143,11 @@ function clearFilters() {
 				v-if="filteredRecipes.length > 0"
 				class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
 			>
-				<RouterLink
+				<RecipeCard
 					v-for="recipe in filteredRecipes"
 					:key="recipe.id"
-					:to="{ name: RECIPE_DETAIL_PAGE, params: { id: recipe.id } }"
-					class="group"
-				>
-					<TheCard class="overflow-hidden transition-all group-hover:shadow-lg hover:scale-[1.01]">
-						<div class="aspect-video bg-muted p-6">
-							<div class="flex h-full items-center justify-center">
-								<TheIcon
-									name="chefHat"
-									size="4xl"
-								/>
-							</div>
-						</div>
-
-						<CardHeader class="pb-3">
-							<CardTitle class="line-clamp-2 text-lg transition-colors">
-								{{ recipe.fields.name }}
-							</CardTitle>
-
-							<CardDescription>
-								{{ recipe.fields.dishType }}
-							</CardDescription>
-						</CardHeader>
-
-						<CardContent class="pt-0">
-							<div class="space-y-3">
-								<div class="flex items-center justify-between text-sm text-muted-foreground">
-									<div class="flex gap-1 items-center">
-										<TheIcon
-											name="users"
-											size="xs"
-										/>
-										{{ recipe.fields.PersonCount }}
-									</div>
-
-									<div class="flex gap-1 items-center">
-										<TheIcon
-											name="clock"
-											size="xs"
-										/>
-										~30min
-									</div>
-								</div>
-
-								<div class="grid grid-cols-2 gap-2 text-xs">
-									<div class="text-center rounded bg-gray-50 p-2">
-										<div class="font-semibold text-orange-600">
-											{{ Math.round(recipe.fields.Calories) }}
-										</div>
-
-										<div class="text-muted-foreground">
-											kcal
-										</div>
-									</div>
-
-									<div class="text-center rounded bg-gray-50 p-2">
-										<div class="font-semibold text-blue-600">
-											{{ recipe.fields.Proteins }}g
-										</div>
-
-										<div class="text-muted-foreground">
-											protéines
-										</div>
-									</div>
-								</div>
-
-								<div class="flex flex-wrap gap-1">
-									<TheBadge
-										variant="secondary"
-										class="text-xs"
-									>
-										{{ recipe.fields.ingredientCount }} ingrédients
-									</TheBadge>
-
-									<TheBadge
-										variant="outline"
-										class="text-xs"
-										:class="{
-											'border-green-300 text-green-700': recipe.fields.Calories < 300,
-											'border-orange-300 text-orange-700': recipe.fields.Calories >= 300 && recipe.fields.Calories < 500,
-											'border-red-300 text-red-700': recipe.fields.Calories >= 500
-										}"
-									>
-										{{ recipe.fields.Calories < 300 ? 'Léger' : recipe.fields.Calories < 500 ? 'Modéré' : 'Consistant' }}
-									</TheBadge>
-								</div>
-							</div>
-						</CardContent>
-					</TheCard>
-				</RouterLink>
+					:recipe="recipe"
+				/>
 			</div>
 
 			<div

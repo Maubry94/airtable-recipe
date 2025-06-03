@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useRoute } from "vue-router";
 import { routerPageName } from "@/router/routerPageName";
-import { TheSheet, SheetTrigger, SheetContent, SheetClose } from "@/components/ui/sheet";
+import { TheSheet, SheetTrigger, SheetContent, SheetClose, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { TheButton } from "@/components/ui/button";
 import TheIcon from "@/components/TheIcon.vue";
 
@@ -42,6 +42,14 @@ function isActive(routeName: string) {
 			side="top"
 			class="w-full border-b border-gray-200 bg-white shadow-lg"
 		>
+			<SheetTitle class="sr-only">
+				Menu de navigation
+			</SheetTitle>
+
+			<SheetDescription class="sr-only">
+				Navigation principale de l'application.
+			</SheetDescription>
+
 			<div class="container mx-auto px-4 py-6">
 				<SheetClose as-child>
 					<RouterLink

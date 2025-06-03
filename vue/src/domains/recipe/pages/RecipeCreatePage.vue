@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
+import { useSonner } from "@/composables/useSonner";
 import TheIcon from "@/components/TheIcon.vue";
 import { TheButton } from "@/components/ui/button";
 import { TheInput } from "@/components/ui/input";
@@ -9,12 +10,22 @@ import { TheBadge } from "@/components/ui/badge";
 import { TheSelect, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TheLabel } from "@/components/ui/label";
 import { TheCheckbox } from "@/components/ui/checkbox";
+import {
+	NumberField,
+	NumberFieldContent,
+	NumberFieldDecrement,
+	NumberFieldIncrement,
+	NumberFieldInput,
+} from "@/components/ui/number-field";
 import { mockIngredients, mockIntolerances } from "@/mocks/recipesData";
 import { useRouter } from "vue-router";
 import { routerPageName } from "@/router/routerPageName";
 
 const router = useRouter();
 const { RECIPE_PAGE } = routerPageName;
+const {
+	sonnerDev,
+} = useSonner();
 
 const recipeName = ref("");
 const DEFAUT_PERSON_COUNT = 4;
@@ -35,9 +46,9 @@ const selectedIngredientsData = computed(() => selectedIngredients.value
 	.map((id) => mockIngredients.find((ingredient) => ingredient.id === id))
 	.filter(Boolean));
 
-// const selectedIntolerancesData = computed(() => selectedIntolerances.value
-// .map((id) => mockIntolerances.find((intolerance) => intolerance.id === id))
-// .filter(Boolean));
+const selectedIntolerancesData = computed(() => selectedIntolerances.value
+	.map((id) => mockIntolerances.find((intolerance) => intolerance.id === id))
+	.filter(Boolean));
 
 const dishTypes = ["Entrée", "Plat principal", "Dessert", "Accompagnement"];
 
@@ -59,12 +70,13 @@ function removeIngredient(ingredientId: string) {
 		selectedIngredients.value.splice(index, SPLICE_INDEX);
 	}
 }
-function toggleIntolerance(intoleranceId: string) {
-	const index = selectedIntolerances.value.indexOf(intoleranceId);
-	if (index > NOT_FOUND) {
-		selectedIntolerances.value.splice(index, SPLICE_INDEX);
-	} else {
+function handleIntoleranceChange(intoleranceId: string, checked: boolean | "indeterminate") {
+	const isChecked = checked === true;
+
+	if (isChecked && !selectedIntolerances.value.includes(intoleranceId)) {
 		selectedIntolerances.value.push(intoleranceId);
+	} else if (!isChecked) {
+		selectedIntolerances.value = selectedIntolerances.value.filter((id) => id !== intoleranceId);
 	}
 }
 
@@ -84,14 +96,16 @@ async function generateRecipe() {
 	isGenerating.value = false;
 	isGenerating.value = false;
 
-	console.log("Recette générée avec succès !", {
+	const formData = {
 		name: recipeName.value,
 		personCount: personCount.value,
 		dishType: dishType.value,
-		selectedIngredients: selectedIngredientsData.value,
-		selectedIntolerances: selectedIntolerances.value,
+		selectedIngredients: selectedIngredientsData.value.map((index) => index?.fields.name).join(", "),
+		selectedIntolerances: selectedIntolerancesData.value.map((index) => index?.fields.name).join(", "),
 		customInstructions: customInstructions.value,
-	});
+	};
+
+	sonnerDev("Recette générée avec succès !", formData);
 
 	void router.push({ name: RECIPE_PAGE });
 }
@@ -139,7 +153,7 @@ function resetForm() {
 				</div>
 			</div>
 
-			<div class="grid gap-8 lg:grid-cols-3">
+			<div class="grid gap-8 lg:grid-cols-3 lg:items-start">
 				<div class="lg:col-span-2 space-y-6">
 					<TheCard>
 						<CardHeader>
@@ -188,33 +202,25 @@ function resetForm() {
 							</div>
 
 							<div class="space-y-2">
-								<TheLabel for="person-count">
-									Nombre de personnes
-								</TheLabel>
+								<NumberField
+									id="person-count"
+									:default-value="DEFAUT_PERSON_COUNT"
+									:min="1"
+									:max="20"
+									v-model="personCount"
+								>
+									<TheLabel for="person-count">
+										Nombre de personnes
+									</TheLabel>
 
-								<div class="flex items-center space-x-4">
-									<TheButton
-										variant="outline"
-										size="sm"
-										@click="personCount = Math.max(1, personCount - 1)"
-									>
-										-
-									</TheButton>
+									<NumberFieldContent class="w-fit">
+										<NumberFieldDecrement />
 
-									<div class="flex items-center space-x-2">
-										<TheIcon name="users" />
+										<NumberFieldInput class="text-center" />
 
-										<span class="text-lg font-medium w-8 text-center">{{ personCount }}</span>
-									</div>
-
-									<TheButton
-										variant="outline"
-										size="sm"
-										@click="personCount = Math.min(20, personCount + 1)"
-									>
-										+
-									</TheButton>
-								</div>
+										<NumberFieldIncrement />
+									</NumberFieldContent>
+								</NumberField>
 							</div>
 						</CardContent>
 					</TheCard>
@@ -301,8 +307,8 @@ function resetForm() {
 								>
 									<TheCheckbox
 										:id="intolerance.id"
-										:checked="selectedIntolerances.includes(intolerance.id)"
-										@update:checked="toggleIntolerance(intolerance.id)"
+										:model-value="selectedIntolerances.includes(intolerance.id)"
+										@update:model-value="(checked) => handleIntoleranceChange(intolerance.id, checked)"
 									/>
 
 									<div class="flex-1">
@@ -341,7 +347,7 @@ function resetForm() {
 					</TheCard>
 				</div>
 
-				<div class="space-y-6">
+				<div class="lg:sticky lg:top-22 space-y-6">
 					<TheCard>
 						<CardHeader>
 							<CardTitle>Résumé</CardTitle>

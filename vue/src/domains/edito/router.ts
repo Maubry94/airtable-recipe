@@ -21,7 +21,7 @@ export function notFound(): RouteRecordRaw {
 			{
 				name: "not-found",
 				path: "/:notFoundPath(.*)*",
-				component: () => import("./pages/NotFound.vue"),
+				component: () => import("./pages/NotFoundPage.vue"),
 			},
 		],
 	};

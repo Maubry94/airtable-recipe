@@ -1,9 +1,9 @@
 import type { RouteRecordRaw } from "vue-router";
 
 export const routerPageNameRecipe = Object.freeze({
-	RECIPE_PAGE: "Recipes",
-	RECIPE_DETAIL_PAGE: "RecipeDetail",
-	RECIPE_CREATE_PAGE: "RecipeCreate",
+	RECIPE_PAGE: "recipes",
+	RECIPE_DETAIL_PAGE: "recipe-detail",
+	RECIPE_CREATE_PAGE: "recipe-create",
 });
 
 export default (): RouteRecordRaw[] => [

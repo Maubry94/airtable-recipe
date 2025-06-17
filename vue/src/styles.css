@@ -142,5 +142,5 @@
 }
 
 @utility min-h-screen-nh {
-	min-height: calc(100vh - 4rem - 2*2rem);
+	min-height: calc(100vh - 4rem - 2*2rem - 1px); /* 4rem for header, 2*2rem for footer padding, 1px for border */
 }

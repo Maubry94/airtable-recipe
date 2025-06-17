@@ -40,7 +40,7 @@ function isActive(routeName: string) {
 
 		<SheetContent
 			side="top"
-			class="w-full border-b border-gray-200 bg-white shadow-lg"
+			class="w-full border-b border-border bg-white shadow-lg"
 		>
 			<SheetTitle class="sr-only">
 				Menu de navigation

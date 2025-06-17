@@ -98,7 +98,7 @@ function getCurrentYear() {
 			</div>
 		</div>
 
-		<div class="border-t border-gray-800">
+		<div class="border-t border-border/10">
 			<div class="container mx-auto px-4 py-6">
 				<div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
 					<div class="text-sm text-muted-foreground">

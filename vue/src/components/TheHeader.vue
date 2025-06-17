@@ -27,7 +27,7 @@ function isActive(routeName: string) {
 </script>
 
 <template>
-	<header class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+	<header class="bg-white border-b border-border sticky top-0 z-50 shadow-sm">
 		<div class="container mx-auto px-4">
 			<div class="flex justify-between items-center h-16">
 				<RouterLink

@@ -121,339 +121,337 @@ function resetForm() {
 </script>
 
 <template>
-	<div class="min-h-screen bg-gray-50">
-		<div class="container mx-auto px-4 py-8">
-			<div class="mb-8">
-				<TheButton
-					variant="ghost"
-					@click="goBack"
-					class="mb-4"
-				>
-					<TheIcon name="arrowLeft" />
-					Retour
-				</TheButton>
+	<section class="min-h-screen-nh">
+		<div class="mb-8">
+			<TheButton
+				variant="ghost"
+				@click="goBack"
+				class="mb-4"
+			>
+				<TheIcon name="arrowLeft" />
+				Retour
+			</TheButton>
 
-				<div class="text-center">
-					<div class="mb-6 flex justify-center">
-						<div class="rounded-full bg-muted p-4">
-							<TheIcon
-								name="sparkles"
-								size="4xl"
-							/>
-						</div>
+			<div class="text-center">
+				<div class="mb-6 flex justify-center">
+					<div class="rounded-full bg-muted p-4">
+						<TheIcon
+							name="sparkles"
+							size="4xl"
+						/>
 					</div>
-
-					<h1 class="text-3xl font-bold mb-2">
-						Créer une nouvelle recette
-					</h1>
-
-					<p class="text-muted-foreground max-w-2xl mx-auto">
-						Renseignez vos préférences et laissez l'IA créer une recette personnalisée avec analyse nutritionnelle complète.
-					</p>
 				</div>
+
+				<h1 class="text-3xl font-bold mb-2">
+					Créer une nouvelle recette
+				</h1>
+
+				<p class="text-muted-foreground max-w-2xl mx-auto">
+					Renseignez vos préférences et laissez l'IA créer une recette personnalisée avec analyse nutritionnelle complète.
+				</p>
 			</div>
+		</div>
 
-			<div class="grid gap-8 lg:grid-cols-3 lg:items-start">
-				<div class="lg:col-span-2 space-y-6">
-					<TheCard>
-						<CardHeader>
-							<CardTitle>Informations de base</CardTitle>
+		<div class="grid gap-8 lg:grid-cols-3 lg:items-start">
+			<div class="lg:col-span-2 space-y-6">
+				<TheCard>
+					<CardHeader>
+						<CardTitle>Informations de base</CardTitle>
 
-							<CardDescription>
-								Donnez les détails principaux de votre recette
-							</CardDescription>
-						</CardHeader>
+						<CardDescription>
+							Donnez les détails principaux de votre recette
+						</CardDescription>
+					</CardHeader>
 
-						<CardContent class="space-y-4">
-							<div class="grid gap-4 sm:grid-cols-2">
-								<div class="space-y-2">
-									<TheLabel for="recipe-name">
-										Nom de la recette
-									</TheLabel>
+					<CardContent class="space-y-4">
+						<div class="grid gap-4 sm:grid-cols-2">
+							<div class="space-y-2">
+								<TheLabel for="recipe-name">
+									Nom de la recette
+								</TheLabel>
 
-									<TheInput
-										id="recipe-name"
-										v-model="recipeName"
-										placeholder="Ex: Tarte au chocolat épicée"
-									/>
-								</div>
-
-								<div class="space-y-2">
-									<TheLabel for="dish-type">
-										Type de plat
-									</TheLabel>
-
-									<TheSelect v-model="dishType">
-										<SelectTrigger>
-											<SelectValue placeholder="Choisir un type" />
-										</SelectTrigger>
-
-										<SelectContent>
-											<SelectItem
-												v-for="type in dishTypes"
-												:key="type"
-												:value="type"
-											>
-												{{ type }}
-											</SelectItem>
-										</SelectContent>
-									</TheSelect>
-								</div>
+								<TheInput
+									id="recipe-name"
+									v-model="recipeName"
+									placeholder="Ex: Tarte au chocolat épicée"
+								/>
 							</div>
 
 							<div class="space-y-2">
-								<NumberField
-									id="person-count"
-									:default-value="DEFAUT_PERSON_COUNT"
-									:min="1"
-									:max="20"
-									v-model="personCount"
-								>
-									<TheLabel for="person-count">
-										Nombre de personnes
-									</TheLabel>
+								<TheLabel for="dish-type">
+									Type de plat
+								</TheLabel>
 
-									<NumberFieldContent class="w-fit">
-										<NumberFieldDecrement />
+								<TheSelect v-model="dishType">
+									<SelectTrigger>
+										<SelectValue placeholder="Choisir un type" />
+									</SelectTrigger>
 
-										<NumberFieldInput class="text-center" />
-
-										<NumberFieldIncrement />
-									</NumberFieldContent>
-								</NumberField>
-							</div>
-						</CardContent>
-					</TheCard>
-
-					<TheCard>
-						<CardHeader>
-							<CardTitle>Ingrédients souhaités</CardTitle>
-
-							<CardDescription>
-								Choisissez les ingrédients que vous souhaitez utiliser
-							</CardDescription>
-						</CardHeader>
-
-						<CardContent>
-							<div
-								class="mb-4"
-							>
-								<h4 class="text-sm font-medium mb-2">
-									Ingrédients sélectionnés :
-								</h4>
-
-								<div class="flex flex-wrap gap-2">
-									<TheBadge
-										v-for="ingredient in selectedIngredientsData"
-										:key="ingredient?.id"
-										variant="secondary"
-										class="cursor-pointer hover:bg-red-100 hover:text-red-700"
-										@click="removeIngredient(ingredient?.id || '')"
-									>
-										{{ ingredient?.fields.name }}
-										<TheIcon
-											name="trash2"
-											size="xs"
-										/>
-									</TheBadge>
-								</div>
-							</div>
-
-							<div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-								<div
-									v-for="ingredient in mockIngredients"
-									:key="ingredient.id"
-									class="flex items-center justify-between rounded-lg border p-3 cursor-pointer hover:bg-gray-50"
-									:class="{
-										'bg-orange-50 border-orange-200': selectedIngredients.includes(ingredient.id)
-									}"
-									@click="addIngredient(ingredient.id)"
-								>
-									<div>
-										<div class="font-medium">
-											{{ ingredient.fields.name }}
-										</div>
-
-										<div class="text-xs text-muted-foreground">
-											{{ ingredient.fields.category }}
-										</div>
-									</div>
-
-									<TheIcon
-										v-if="selectedIngredients.includes(ingredient.id)"
-										name="check"
-										class="text-orange-600"
-									/>
-								</div>
-							</div>
-						</CardContent>
-					</TheCard>
-
-					<TheCard>
-						<CardHeader>
-							<CardTitle>Intolérances alimentaires</CardTitle>
-
-							<CardDescription>
-								Sélectionnez vos restrictions alimentaires (optionnel)
-							</CardDescription>
-						</CardHeader>
-
-						<CardContent>
-							<div class="space-y-3">
-								<div
-									v-for="intolerance in mockIntolerances"
-									:key="intolerance.id"
-									class="flex items-start space-x-3"
-								>
-									<TheCheckbox
-										:id="intolerance.id"
-										:model-value="selectedIntolerances.includes(intolerance.id)"
-										@update:model-value="(checked) => handleIntoleranceChange(intolerance.id, checked)"
-									/>
-
-									<div class="flex-1">
-										<TheLabel
-											:for="intolerance.id"
-											class="text-sm font-medium cursor-pointer"
+									<SelectContent>
+										<SelectItem
+											v-for="type in dishTypes"
+											:key="type"
+											:value="type"
 										>
-											{{ intolerance.fields.name }}
-										</TheLabel>
-
-										<p class="text-xs text-muted-foreground mt-1">
-											{{ intolerance.fields.description }}
-										</p>
-									</div>
-								</div>
+											{{ type }}
+										</SelectItem>
+									</SelectContent>
+								</TheSelect>
 							</div>
-						</CardContent>
-					</TheCard>
+						</div>
 
-					<TheCard>
-						<CardHeader>
-							<CardTitle>Instructions spéciales (optionnel)</CardTitle>
+						<div class="space-y-2">
+							<NumberField
+								id="person-count"
+								:default-value="DEFAUT_PERSON_COUNT"
+								:min="1"
+								:max="20"
+								v-model="personCount"
+							>
+								<TheLabel for="person-count">
+									Nombre de personnes
+								</TheLabel>
 
-							<CardDescription>
-								Ajoutez des instructions particulières pour votre recette
-							</CardDescription>
-						</CardHeader>
+								<NumberFieldContent class="w-fit">
+									<NumberFieldDecrement />
 
-						<CardContent>
-							<TheTextarea
-								v-model="customInstructions"
-								placeholder="Ex : Sans cuisson, recette rapide, utiliser un robot..."
-								rows="3"
-							/>
-						</CardContent>
-					</TheCard>
-				</div>
+									<NumberFieldInput class="text-center" />
 
-				<div class="lg:sticky lg:top-22 space-y-6">
-					<TheCard>
-						<CardHeader>
-							<CardTitle>Résumé</CardTitle>
-						</CardHeader>
+									<NumberFieldIncrement />
+								</NumberFieldContent>
+							</NumberField>
+						</div>
+					</CardContent>
+				</TheCard>
 
-						<CardContent class="space-y-3">
-							<div class="flex items-center justify-between">
-								<span class="text-sm text-muted-foreground">Nom :</span>
+				<TheCard>
+					<CardHeader>
+						<CardTitle>Ingrédients souhaités</CardTitle>
 
-								<span class="text-sm font-medium">
-									{{ recipeName || "Non défini" }}
-								</span>
-							</div>
+						<CardDescription>
+							Choisissez les ingrédients que vous souhaitez utiliser
+						</CardDescription>
+					</CardHeader>
 
-							<div class="flex items-center justify-between">
-								<span class="text-sm text-muted-foreground">Type:</span>
+					<CardContent>
+						<div
+							class="mb-4"
+						>
+							<h4 class="text-sm font-medium mb-2">
+								Ingrédients sélectionnés :
+							</h4>
 
-								<span class="text-sm font-medium">
-									{{ dishType || "Non défini" }}
-								</span>
-							</div>
-
-							<div class="flex items-center justify-between">
-								<span class="text-sm text-muted-foreground">Personnes :</span>
-
-								<span class="text-sm font-medium flex gap-1 items-center">
+							<div class="flex flex-wrap gap-2">
+								<TheBadge
+									v-for="ingredient in selectedIngredientsData"
+									:key="ingredient?.id"
+									variant="secondary"
+									class="cursor-pointer hover:bg-red-100 hover:text-red-700"
+									@click="removeIngredient(ingredient?.id || '')"
+								>
+									{{ ingredient?.fields.name }}
 									<TheIcon
-										name="users"
+										name="trash2"
 										size="xs"
 									/>
-									{{ personCount }}
-								</span>
+								</TheBadge>
 							</div>
+						</div>
 
-							<div class="flex items-center justify-between">
-								<span class="text-sm text-muted-foreground">Ingrédients :</span>
+						<div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+							<div
+								v-for="ingredient in mockIngredients"
+								:key="ingredient.id"
+								class="flex items-center justify-between rounded-lg border p-3 cursor-pointer hover:bg-gray-50"
+								:class="{
+									'bg-orange-50 border-orange-200': selectedIngredients.includes(ingredient.id)
+								}"
+								@click="selectedIngredients.includes(ingredient.id) ? removeIngredient(ingredient.id) : addIngredient(ingredient.id)"
+							>
+								<div>
+									<div class="font-medium">
+										{{ ingredient.fields.name }}
+									</div>
 
-								<span class="text-sm font-medium">
-									{{ selectedIngredients.length }}
-								</span>
+									<div class="text-xs text-muted-foreground">
+										{{ ingredient.fields.category }}
+									</div>
+								</div>
+
+								<TheIcon
+									v-if="selectedIngredients.includes(ingredient.id)"
+									name="check"
+									class="text-orange-600"
+								/>
 							</div>
+						</div>
+					</CardContent>
+				</TheCard>
 
-							<div class="flex items-center justify-between">
-								<span class="text-sm text-muted-foreground">Restrictions :</span>
+				<TheCard>
+					<CardHeader>
+						<CardTitle>Intolérances alimentaires</CardTitle>
 
-								<span class="text-sm font-medium">
-									{{ selectedIntolerances.length }}
-								</span>
+						<CardDescription>
+							Sélectionnez vos restrictions alimentaires (optionnel)
+						</CardDescription>
+					</CardHeader>
+
+					<CardContent>
+						<div class="space-y-3">
+							<div
+								v-for="intolerance in mockIntolerances"
+								:key="intolerance.id"
+								class="flex items-start space-x-3"
+							>
+								<TheCheckbox
+									:id="intolerance.id"
+									:model-value="selectedIntolerances.includes(intolerance.id)"
+									@update:model-value="(checked) => handleIntoleranceChange(intolerance.id, checked)"
+								/>
+
+								<div class="flex-1">
+									<TheLabel
+										:for="intolerance.id"
+										class="text-sm font-medium cursor-pointer"
+									>
+										{{ intolerance.fields.name }}
+									</TheLabel>
+
+									<p class="text-xs text-muted-foreground mt-1">
+										{{ intolerance.fields.description }}
+									</p>
+								</div>
 							</div>
-						</CardContent>
-					</TheCard>
+						</div>
+					</CardContent>
+				</TheCard>
 
-					<div class="space-y-3">
-						<TheButton
-							@click="generateRecipe"
-							:disabled="!isFormValid || isGenerating"
-							class="w-full"
-							size="lg"
-						>
-							<TheIcon
-								v-if="isGenerating"
-								name="loader"
-								class="animate-spin"
-							/>
+				<TheCard>
+					<CardHeader>
+						<CardTitle>Instructions spéciales (optionnel)</CardTitle>
 
-							<TheIcon
-								v-else
-								name="sparkles"
-							/>
-							{{ isGenerating ? "Génération..." : "Générer la recette" }}
-						</TheButton>
+						<CardDescription>
+							Ajoutez des instructions particulières pour votre recette
+						</CardDescription>
+					</CardHeader>
 
-						<TheButton
-							variant="outline"
-							@click="resetForm"
-							class="w-full"
-						>
-							Réinitialiser
-						</TheButton>
-					</div>
+					<CardContent>
+						<TheTextarea
+							v-model="customInstructions"
+							placeholder="Ex : Sans cuisson, recette rapide, utiliser un robot..."
+							rows="3"
+						/>
+					</CardContent>
+				</TheCard>
+			</div>
 
-					<TheCard>
-						<CardHeader>
-							<CardTitle class="text-sm">
-								Comment ça marche ?
-							</CardTitle>
-						</CardHeader>
+			<div class="lg:sticky lg:top-22 space-y-6">
+				<TheCard>
+					<CardHeader>
+						<CardTitle>Résumé</CardTitle>
+					</CardHeader>
 
-						<CardContent class="text-xs text-muted-foreground space-y-2">
-							<p>
-								Notre IA analyse vos préférences pour créer une recette unique avec :
-							</p>
+					<CardContent class="space-y-3">
+						<div class="flex items-center justify-between">
+							<span class="text-sm text-muted-foreground">Nom :</span>
 
-							<ul class="list-disc list-inside space-y-1 ml-2">
-								<li>Instructions détaillées</li>
+							<span class="text-sm font-medium">
+								{{ recipeName || "Non défini" }}
+							</span>
+						</div>
 
-								<li>Analyse nutritionnelle complète</li>
+						<div class="flex items-center justify-between">
+							<span class="text-sm text-muted-foreground">Type:</span>
 
-								<li>Suggestions d'amélioration</li>
+							<span class="text-sm font-medium">
+								{{ dishType || "Non défini" }}
+							</span>
+						</div>
 
-								<li>Respect des intolérances</li>
-							</ul>
-						</CardContent>
-					</TheCard>
+						<div class="flex items-center justify-between">
+							<span class="text-sm text-muted-foreground">Personnes :</span>
+
+							<span class="text-sm font-medium flex gap-1 items-center">
+								<TheIcon
+									name="users"
+									size="xs"
+								/>
+								{{ personCount }}
+							</span>
+						</div>
+
+						<div class="flex items-center justify-between">
+							<span class="text-sm text-muted-foreground">Ingrédients :</span>
+
+							<span class="text-sm font-medium">
+								{{ selectedIngredients.length }}
+							</span>
+						</div>
+
+						<div class="flex items-center justify-between">
+							<span class="text-sm text-muted-foreground">Restrictions :</span>
+
+							<span class="text-sm font-medium">
+								{{ selectedIntolerances.length }}
+							</span>
+						</div>
+					</CardContent>
+				</TheCard>
+
+				<div class="space-y-3">
+					<TheButton
+						@click="generateRecipe"
+						:disabled="!isFormValid || isGenerating"
+						class="w-full"
+						size="lg"
+					>
+						<TheIcon
+							v-if="isGenerating"
+							name="loader"
+							class="animate-spin"
+						/>
+
+						<TheIcon
+							v-else
+							name="sparkles"
+						/>
+						{{ isGenerating ? "Génération..." : "Générer la recette" }}
+					</TheButton>
+
+					<TheButton
+						variant="outline"
+						@click="resetForm"
+						class="w-full"
+					>
+						Réinitialiser
+					</TheButton>
 				</div>
+
+				<TheCard>
+					<CardHeader>
+						<CardTitle class="text-sm">
+							Comment ça marche ?
+						</CardTitle>
+					</CardHeader>
+
+					<CardContent class="text-xs text-muted-foreground space-y-2">
+						<p>
+							Notre IA analyse vos préférences pour créer une recette unique avec :
+						</p>
+
+						<ul class="list-disc list-inside space-y-1 ml-2">
+							<li>Instructions détaillées</li>
+
+							<li>Analyse nutritionnelle complète</li>
+
+							<li>Suggestions d'amélioration</li>
+
+							<li>Respect des intolérances</li>
+						</ul>
+					</CardContent>
+				</TheCard>
 			</div>
 		</div>
-	</div>
+	</section>
 </template>

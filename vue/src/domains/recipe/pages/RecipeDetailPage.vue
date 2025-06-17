@@ -61,286 +61,284 @@ const nutritionProgress = computed(() => {
 </script>
 
 <template>
-	<div
+	<section
 		v-if="recipe"
-		class="min-h-screen bg-gray-50"
+		class="min-h-screen-nh"
 	>
-		<div class="container mx-auto px-4 py-8">
-			<div class="mb-8">
-				<TheButton
-					variant="ghost"
-					@click="goBack"
-					class="mb-4"
-				>
-					<TheIcon name="arrowLeft" />
-					Retour aux recettes
-				</TheButton>
-
-				<div class="grid gap-8 lg:grid-cols-3">
-					<div class="lg:col-span-2">
-						<div class="rounded-lg bg-muted p-8 mb-6">
-							<div class="flex h-32 items-center justify-center">
-								<TheIcon
-									name="chefHat"
-									size="7xl"
-								/>
-							</div>
-						</div>
-
-						<h1 class="text-3xl font-bold mb-2">
-							{{ recipe.fields.name }}
-						</h1>
-
-						<div class="flex flex-wrap gap-4 text-sm text-muted-foreground mb-6">
-							<div class="flex gap-1 items-center">
-								<TheIcon
-									name="users"
-									size="xs"
-								/>
-								{{ recipe.fields.PersonCount }} personnes
-							</div>
-
-							<div class="flex gap-1 items-center">
-								<TheIcon
-									name="clock"
-									size="xs"
-								/>
-								~30 minutes
-							</div>
-
-							<TheBadge variant="outline">
-								{{ recipe.fields.dishType }}
-							</TheBadge>
-						</div>
-					</div>
-
-					<div>
-						<TheCard>
-							<CardHeader>
-								<CardTitle>Analyse nutritionnelle</CardTitle>
-							</CardHeader>
-
-							<CardContent class="space-y-4">
-								<div class="grid grid-cols-2 gap-4 text-center">
-									<div class="rounded bg-orange-50 p-3">
-										<div class="text-2xl font-bold text-orange-600">
-											{{ Math.round(recipe.fields.Calories) }}
-										</div>
-
-										<div class="text-sm text-muted-foreground">
-											kcal
-										</div>
-									</div>
-
-									<div class="rounded bg-blue-50 p-3">
-										<div class="text-2xl font-bold text-blue-600">
-											{{ recipe.fields.nutritionalDensity }}
-										</div>
-
-										<div class="text-sm text-muted-foreground">
-											densité
-										</div>
-									</div>
-								</div>
-
-								<div class="space-y-3">
-									<div>
-										<div class="flex justify-between text-sm mb-1">
-											<span>Protéines</span>
-
-											<span>{{ recipe.fields.Proteins }}g</span>
-										</div>
-
-										<TheProgress
-											v-model="nutritionProgress.proteins"
-											class="h-2"
-										/>
-									</div>
-
-									<div>
-										<div class="flex justify-between text-sm mb-1">
-											<span>Glucides</span>
-
-											<span>{{ recipe.fields.Carbohydrates }}g</span>
-										</div>
-
-										<TheProgress
-											v-model="nutritionProgress.carbohydrates"
-											class="h-2"
-										/>
-									</div>
-
-									<div>
-										<div class="flex justify-between text-sm mb-1">
-											<span>Lipides</span>
-
-											<span>{{ recipe.fields.Lipids }}g</span>
-										</div>
-
-										<TheProgress
-											v-model="nutritionProgress.lipids"
-											class="h-2"
-										/>
-									</div>
-								</div>
-							</CardContent>
-						</TheCard>
-					</div>
-				</div>
-			</div>
+		<div class="mb-8">
+			<TheButton
+				variant="ghost"
+				@click="goBack"
+				class="mb-4"
+			>
+				<TheIcon name="arrowLeft" />
+				Retour aux recettes
+			</TheButton>
 
 			<div class="grid gap-8 lg:grid-cols-3">
-				<div class="lg:col-span-2 space-y-6">
-					<TheCard>
-						<CardHeader>
-							<CardTitle>Ingrédients ({{ recipe.fields.ingredientCount }})</CardTitle>
-						</CardHeader>
+				<div class="lg:col-span-2">
+					<div class="rounded-lg bg-muted p-8 mb-6">
+						<div class="flex h-32 items-center justify-center">
+							<TheIcon
+								name="chefHat"
+								size="7xl"
+							/>
+						</div>
+					</div>
 
-						<CardContent>
-							<div class="grid gap-3 sm:grid-cols-2">
-								<div
-									v-for="ingredient in recipeIngredients"
-									:key="ingredient?.id"
-									class="flex items-center justify-between rounded-lg border p-3"
-								>
-									<span class="font-medium">{{ ingredient?.fields.name }}</span>
+					<h1 class="text-3xl font-bold mb-2">
+						{{ recipe.fields.name }}
+					</h1>
 
-									<TheBadge variant="secondary">
-										{{ ingredient?.fields.category }}
-									</TheBadge>
-								</div>
-							</div>
-						</CardContent>
-					</TheCard>
+					<div class="flex flex-wrap gap-4 text-sm text-muted-foreground mb-6">
+						<div class="flex gap-1 items-center">
+							<TheIcon
+								name="users"
+								size="xs"
+							/>
+							{{ recipe.fields.PersonCount }} personnes
+						</div>
 
-					<TheCard>
-						<CardHeader>
-							<CardTitle>Instructions de préparation</CardTitle>
-						</CardHeader>
+						<div class="flex gap-1 items-center">
+							<TheIcon
+								name="clock"
+								size="xs"
+							/>
+							~30 minutes
+						</div>
 
-						<CardContent>
-							<p class="text-muted-foreground leading-relaxed">
-								{{ recipe.fields.preparationInstructions }}
-							</p>
-						</CardContent>
-					</TheCard>
-
-					<TheCard v-if="recipeIntolerances.length > 0">
-						<CardHeader>
-							<CardTitle class="flex gap-2 items-center">
-								<TheIcon
-									name="alertTriangle"
-									size="xl"
-									class="text-amber-600"
-								/>
-								Allergènes et intolérances
-							</CardTitle>
-						</CardHeader>
-
-						<CardContent>
-							<div class="space-y-3">
-								<TheAlert
-									v-for="intolerance in recipeIntolerances"
-									:key="intolerance?.id"
-									class="border-amber-200 bg-amber-50"
-								>
-									<AlertDescription>
-										<div class="font-medium text-amber-800">
-											{{ intolerance?.fields.name }}
-										</div>
-
-										<div class="text-sm text-amber-700 mt-1">
-											{{ intolerance?.fields.description }}
-										</div>
-									</AlertDescription>
-								</TheAlert>
-							</div>
-						</CardContent>
-					</TheCard>
+						<TheBadge variant="outline">
+							{{ recipe.fields.dishType }}
+						</TheBadge>
+					</div>
 				</div>
 
-				<div class="space-y-6">
+				<div>
 					<TheCard>
 						<CardHeader>
-							<CardTitle class="flex gap-2 items-center">
-								<TheIcon
-									name="info"
-									size="xl"
-								/>
-								Résumé nutritionnel
-							</CardTitle>
+							<CardTitle>Analyse nutritionnelle</CardTitle>
 						</CardHeader>
 
-						<CardContent>
-							<TheAlert>
-								<AlertDescription>
-									{{ recipe.fields.nutritionalSummary.value }}
-								</AlertDescription>
-							</TheAlert>
+						<CardContent class="space-y-4">
+							<div class="grid grid-cols-2 gap-4 text-center">
+								<div class="rounded bg-orange-50 p-3">
+									<div class="text-2xl font-bold text-orange-600">
+										{{ Math.round(recipe.fields.Calories) }}
+									</div>
 
-							<div class="mt-4 space-y-2 text-sm">
-								<div class="flex justify-between">
-									<span class="text-muted-foreground">Vitamines :</span>
-
-									<span class="font-medium">{{ recipe.fields.Vitamins }}</span>
+									<div class="text-sm text-muted-foreground">
+										kcal
+									</div>
 								</div>
 
-								<div class="flex justify-between">
-									<span class="text-muted-foreground">Minéraux :</span>
+								<div class="rounded bg-blue-50 p-3">
+									<div class="text-2xl font-bold text-blue-600">
+										{{ recipe.fields.nutritionalDensity }}
+									</div>
 
-									<span class="font-medium">{{ recipe.fields.Minerals }}</span>
+									<div class="text-sm text-muted-foreground">
+										densité
+									</div>
 								</div>
 							</div>
-						</CardContent>
-					</TheCard>
 
-					<TheCard>
-						<CardHeader>
-							<CardTitle class="flex gap-2 items-center">
-								<TheIcon
-									name="lightbulb"
-									size="xl"
-								/>
-								Suggestions
-							</CardTitle>
-						</CardHeader>
+							<div class="space-y-3">
+								<div>
+									<div class="flex justify-between text-sm mb-1">
+										<span>Protéines</span>
 
-						<CardContent>
-							<TheAlert class="border-blue-200 bg-blue-50">
-								<AlertDescription class="text-blue-700">
-									{{ recipe.fields.improvementSuggestions.value }}
-								</AlertDescription>
-							</TheAlert>
-						</CardContent>
-					</TheCard>
+										<span>{{ recipe.fields.Proteins }}g</span>
+									</div>
 
-					<TheCard>
-						<CardHeader>
-							<CardTitle>Informations</CardTitle>
-						</CardHeader>
+									<TheProgress
+										v-model="nutritionProgress.proteins"
+										class="h-2"
+									/>
+								</div>
 
-						<CardContent class="space-y-2 text-sm">
-							<div class="flex justify-between">
-								<span class="text-muted-foreground">Créée le :</span>
+								<div>
+									<div class="flex justify-between text-sm mb-1">
+										<span>Glucides</span>
 
-								<span>{{ new Date(recipe.fields.createdAt).toLocaleDateString('fr-FR') }}</span>
-							</div>
+										<span>{{ recipe.fields.Carbohydrates }}g</span>
+									</div>
 
-							<div class="flex justify-between">
-								<span class="text-muted-foreground">Densité nutritionnelle :</span>
+									<TheProgress
+										v-model="nutritionProgress.carbohydrates"
+										class="h-2"
+									/>
+								</div>
 
-								<span class="font-medium">{{ recipe.fields.nutritionalDensity }}</span>
+								<div>
+									<div class="flex justify-between text-sm mb-1">
+										<span>Lipides</span>
+
+										<span>{{ recipe.fields.Lipids }}g</span>
+									</div>
+
+									<TheProgress
+										v-model="nutritionProgress.lipids"
+										class="h-2"
+									/>
+								</div>
 							</div>
 						</CardContent>
 					</TheCard>
 				</div>
 			</div>
 		</div>
-	</div>
 
-	<div
+		<div class="grid gap-8 lg:grid-cols-3">
+			<div class="lg:col-span-2 space-y-6">
+				<TheCard>
+					<CardHeader>
+						<CardTitle>Ingrédients ({{ recipe.fields.ingredientCount }})</CardTitle>
+					</CardHeader>
+
+					<CardContent>
+						<div class="grid gap-3 sm:grid-cols-2">
+							<div
+								v-for="ingredient in recipeIngredients"
+								:key="ingredient?.id"
+								class="flex items-center justify-between rounded-lg border p-3"
+							>
+								<span class="font-medium">{{ ingredient?.fields.name }}</span>
+
+								<TheBadge variant="secondary">
+									{{ ingredient?.fields.category }}
+								</TheBadge>
+							</div>
+						</div>
+					</CardContent>
+				</TheCard>
+
+				<TheCard>
+					<CardHeader>
+						<CardTitle>Instructions de préparation</CardTitle>
+					</CardHeader>
+
+					<CardContent>
+						<p class="text-muted-foreground leading-relaxed">
+							{{ recipe.fields.preparationInstructions }}
+						</p>
+					</CardContent>
+				</TheCard>
+
+				<TheCard v-if="recipeIntolerances.length > 0">
+					<CardHeader>
+						<CardTitle class="flex gap-2 items-center">
+							<TheIcon
+								name="alertTriangle"
+								size="xl"
+								class="text-amber-600"
+							/>
+							Allergènes et intolérances
+						</CardTitle>
+					</CardHeader>
+
+					<CardContent>
+						<div class="space-y-3">
+							<TheAlert
+								v-for="intolerance in recipeIntolerances"
+								:key="intolerance?.id"
+								class="border-amber-200 bg-amber-50"
+							>
+								<AlertDescription>
+									<div class="font-medium text-amber-800">
+										{{ intolerance?.fields.name }}
+									</div>
+
+									<div class="text-sm text-amber-700 mt-1">
+										{{ intolerance?.fields.description }}
+									</div>
+								</AlertDescription>
+							</TheAlert>
+						</div>
+					</CardContent>
+				</TheCard>
+			</div>
+
+			<div class="space-y-6">
+				<TheCard>
+					<CardHeader>
+						<CardTitle class="flex gap-2 items-center">
+							<TheIcon
+								name="info"
+								size="xl"
+							/>
+							Résumé nutritionnel
+						</CardTitle>
+					</CardHeader>
+
+					<CardContent>
+						<TheAlert>
+							<AlertDescription>
+								{{ recipe.fields.nutritionalSummary.value }}
+							</AlertDescription>
+						</TheAlert>
+
+						<div class="mt-4 space-y-2 text-sm">
+							<div class="flex justify-between">
+								<span class="text-muted-foreground">Vitamines :</span>
+
+								<span class="font-medium">{{ recipe.fields.Vitamins }}</span>
+							</div>
+
+							<div class="flex justify-between">
+								<span class="text-muted-foreground">Minéraux :</span>
+
+								<span class="font-medium">{{ recipe.fields.Minerals }}</span>
+							</div>
+						</div>
+					</CardContent>
+				</TheCard>
+
+				<TheCard>
+					<CardHeader>
+						<CardTitle class="flex gap-2 items-center">
+							<TheIcon
+								name="lightbulb"
+								size="xl"
+							/>
+							Suggestions
+						</CardTitle>
+					</CardHeader>
+
+					<CardContent>
+						<TheAlert class="border-blue-200 bg-blue-50">
+							<AlertDescription class="text-blue-700">
+								{{ recipe.fields.improvementSuggestions.value }}
+							</AlertDescription>
+						</TheAlert>
+					</CardContent>
+				</TheCard>
+
+				<TheCard>
+					<CardHeader>
+						<CardTitle>Informations</CardTitle>
+					</CardHeader>
+
+					<CardContent class="space-y-2 text-sm">
+						<div class="flex justify-between">
+							<span class="text-muted-foreground">Créée le :</span>
+
+							<span>{{ new Date(recipe.fields.createdAt).toLocaleDateString('fr-FR') }}</span>
+						</div>
+
+						<div class="flex justify-between">
+							<span class="text-muted-foreground">Densité nutritionnelle :</span>
+
+							<span class="font-medium">{{ recipe.fields.nutritionalDensity }}</span>
+						</div>
+					</CardContent>
+				</TheCard>
+			</div>
+		</div>
+	</section>
+
+	<section
 		v-else
-		class="min-h-screen bg-gray-50 flex items-center justify-center"
+		class="min-h-screen-nh flex items-center justify-center"
 	>
 		<div class="text-center">
 			<TheIcon
@@ -368,5 +366,5 @@ const nutritionProgress = computed(() => {
 				Retour
 			</TheButton>
 		</div>
-	</div>
+	</section>
 </template>

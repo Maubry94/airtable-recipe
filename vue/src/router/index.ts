@@ -20,11 +20,11 @@ const router = createRouter({
 		notFound(),
 	],
 	scrollBehavior(_to, _from, savedPosition) {
-		if (savedPosition) {
-			return savedPosition;
-		} else {
-			return { top: 0 };
-		}
+		// if (savedPosition) {
+		// return savedPosition;
+		// } else {
+		return { top: 0 };
+		// }
 	},
 });
 

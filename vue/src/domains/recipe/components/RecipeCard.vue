@@ -3,22 +3,13 @@ import { routerPageName } from "@/router/routerPageName";
 import TheIcon from "@/components/TheIcon.vue";
 import { TheCard, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { TheBadge } from "@/components/ui/badge";
+import type { Recipe } from "@/lib/api-client/types/duplojsTypesCodegen";
 
-interface Recipe {
-	id: string;
-	fields: {
-		name: string;
-		dishType: string;
-		PersonCount: number;
-		Calories: number;
-		Proteins: number;
-		ingredientCount: number;
-	};
+interface Props {
+	recipe: Recipe;
 }
 
-defineProps<{
-	recipe: Recipe;
-}>();
+const props = defineProps<Props>();
 
 const { RECIPE_DETAIL_PAGE } = routerPageName;
 </script>
@@ -40,11 +31,11 @@ const { RECIPE_DETAIL_PAGE } = routerPageName;
 
 			<CardHeader class="pb-3">
 				<CardTitle class="line-clamp-2 text-lg transition-colors">
-					{{ recipe.fields.name }}
+					{{ props.recipe.fields.name }}
 				</CardTitle>
 
 				<CardDescription>
-					{{ recipe.fields.dishType }}
+					{{ props.recipe.fields.dishType }}
 				</CardDescription>
 			</CardHeader>
 
@@ -56,7 +47,7 @@ const { RECIPE_DETAIL_PAGE } = routerPageName;
 								name="users"
 								size="xs"
 							/>
-							{{ recipe.fields.PersonCount }}
+							{{ props.recipe.fields.personCount }}
 						</div>
 
 						<div class="flex gap-1 items-center">
@@ -71,7 +62,7 @@ const { RECIPE_DETAIL_PAGE } = routerPageName;
 					<div class="grid grid-cols-2 gap-2 text-xs">
 						<div class="text-center rounded bg-gray-50 p-2">
 							<div class="font-semibold text-orange-600">
-								{{ Math.round(recipe.fields.Calories) }}
+								{{ Math.round(props.recipe.fields.totalCalories) }}
 							</div>
 
 							<div class="text-muted-foreground">
@@ -81,7 +72,7 @@ const { RECIPE_DETAIL_PAGE } = routerPageName;
 
 						<div class="text-center rounded bg-gray-50 p-2">
 							<div class="font-semibold text-blue-600">
-								{{ recipe.fields.Proteins }}g
+								{{ props.recipe.fields.numberOfProteins }}g
 							</div>
 
 							<div class="text-muted-foreground">
@@ -95,19 +86,19 @@ const { RECIPE_DETAIL_PAGE } = routerPageName;
 							variant="secondary"
 							class="text-xs"
 						>
-							{{ recipe.fields.ingredientCount }} ingrédients
+							{{ props.recipe.fields.ingredientCount }} ingrédients
 						</TheBadge>
 
 						<TheBadge
 							variant="outline"
 							class="text-xs"
 							:class="{
-								'border-green-300 text-green-700': recipe.fields.Calories < 300,
-								'border-orange-300 text-orange-700': recipe.fields.Calories >= 300 && recipe.fields.Calories < 500,
-								'border-red-300 text-red-700': recipe.fields.Calories >= 500
+								'border-green-300 text-green-700': props.recipe.fields.totalCalories < 300,
+								'border-orange-300 text-orange-700': props.recipe.fields.totalCalories >= 300 && props.recipe.fields.totalCalories < 500,
+								'border-red-300 text-red-700': props.recipe.fields.totalCalories >= 500
 							}"
 						>
-							{{ recipe.fields.Calories < 300 ? 'Léger' : recipe.fields.Calories < 500 ? 'Modéré' : 'Consistant' }}
+							{{ props.recipe.fields.totalCalories < 300 ? 'Léger' : props.recipe.fields.totalCalories < 500 ? 'Modéré' : 'Consistant' }}
 						</TheBadge>
 					</div>
 				</div>

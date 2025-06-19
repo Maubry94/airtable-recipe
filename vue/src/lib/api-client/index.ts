@@ -1,34 +1,40 @@
 import { HttpClient, type TransformCodegenRouteToHttpClientRoute } from "@duplojs/http-client";
 import type { CodegenRoutes } from "./types/duplojsTypesCodegen";
 import { envs } from "@/envs";
-import { useUserAdminInformation } from "@/domains/admin/composables/useUserAdminInformation";
-import { useSonner } from "@/composables/useSonner";
+import { useLoader } from "@/composables/useLoader";
 
-export type AirtableRecipeAPIClientRoute = TransformCodegenRouteToHttpClientRoute<
+const {
+	isLoading,
+	setLoading,
+} = useLoader();
+
+export type DuploClientRoute = TransformCodegenRouteToHttpClientRoute<
 	CodegenRoutes
 >;
 
-const { accessTokenItem } = useUserAdminInformation();
-const { sonnerWarning } = useSonner();
-
-export const AirtableRecipeApiClient = new HttpClient<AirtableRecipeAPIClientRoute>({
+export const duploClient = new HttpClient<DuploClientRoute>({
 	baseUrl: envs.VITE_API_BASE_URL,
 })
 	.setDefaultRequestParams({
 		mode: "cors",
-		headers: {
-			get authorization() {
-				return accessTokenItem.value ?? undefined;
-			},
-		},
 	})
 	.setInterceptor(
-		"response",
-		(response) => {
-			if (response.information === "access.token.invalid") {
-				sonnerWarning("Vous n'êtes plus connecté.");
-				window.location.href = "/admin-panel/login";
+		"request",
+		(requestDefinition) => {
+			if (isLoading.value !== true) {
+				setLoading(true);
 			}
-			return response;
+
+			return requestDefinition;
+		},
+	)
+	.setInterceptor(
+		"response",
+		(responseDefinition) => {
+			if (isLoading.value === true) {
+				setLoading(false);
+			}
+
+			return responseDefinition;
 		},
 	);

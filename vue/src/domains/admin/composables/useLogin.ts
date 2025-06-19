@@ -1,6 +1,6 @@
 import { useLoader } from "@/composables/useLoader";
 import { useSonner } from "@/composables/useSonner";
-import { AirtableRecipeApiClient } from "@/lib/api-client";
+import { duploClient } from "@/lib/api-client";
 import { useUserAdminInformation } from "./useUserAdminInformation";
 import { useRouter } from "vue-router";
 import { routerPageNameAdmin } from "../router";
@@ -25,7 +25,7 @@ export function useLogin() {
 
 	async function login(input: InputLogin) {
 		setLoading(true);
-		await AirtableRecipeApiClient.post(
+		await duploClient.post(
 			"/authentication",
 			{
 				body: {

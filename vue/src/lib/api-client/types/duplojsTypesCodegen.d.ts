@@ -5,25 +5,187 @@
 /* v8 ignore start */
 // noinspection JSUnusedGlobalSymbols
 // @ts-nocheck
+type Recipe = {
+    id: string;
+    createdTime: string;
+    fields: {
+        name: string;
+        image: string;
+        ingredients: {
+            id: string;
+            name: string;
+        }[];
+        personCount: number;
+        dishType: "starter" | "dish" | "dessert";
+        intolerances: {
+            id: string;
+            name: string;
+            description: string;
+        }[];
+        totalCalories: number;
+        numberOfProteins: number;
+        numberOfCarbohydrates: number;
+        numberOfLipids: number;
+        vitamins?: string | undefined;
+        minerals?: string | undefined;
+        instructions?: string | undefined;
+        createdAt: string;
+        ingredientCount?: number | undefined;
+        nutritionalDensity: number;
+        nutritionalSummary?: string | undefined;
+        improvementSuggestions?: string | undefined;
+    };
+};
+
+export { Recipe };
+
+type GeneratedRecipe = {
+    recipeTransactionId: string;
+    generatedRecipe: {
+        name: string;
+        image: string;
+        personCount: number;
+        dishType: "starter" | "dish" | "dessert";
+        totalCalories: number;
+        numberOfProteins: number;
+        numberOfCarbohydrates: number;
+        numberOfLipids: number;
+        vitamins?: string | undefined;
+        minerals?: string | undefined;
+        instructions?: string | undefined;
+        ingredients: {
+            name: string;
+            quantity: number;
+            measurementUnit: "grams" | "milliliters" | "tablespoons" | "teaspoons" | "pieces";
+            image: string;
+        }[];
+        intolerances: {
+            name: string;
+            description?: string | undefined;
+        }[];
+    } | null;
+};
+
+export { GeneratedRecipe };
+
+type RecipeList = {
+    records: {
+        id: string;
+        createdTime: string;
+        fields: {
+            name: string;
+            image: string;
+            ingredients?: string[] | undefined;
+            personCount: number;
+            dishType: "starter" | "dish" | "dessert";
+            intolerances?: string[] | undefined;
+            totalCalories: number;
+            numberOfProteins: number;
+            numberOfCarbohydrates: number;
+            numberOfLipids: number;
+            vitamins?: string | undefined;
+            minerals?: string | undefined;
+            instructions?: string | undefined;
+            createdAt: string;
+            ingredientCount?: number | undefined;
+            nutritionalDensity: number;
+            nutritionalSummary?: string | undefined;
+            improvementSuggestions?: string | undefined;
+        };
+    }[];
+};
+
+export { RecipeList };
+
 type CodegenRoutes = ({
-    method: "POST";
-    path: "/authentication";
-    body: {
-        email: string;
-        password: string;
+    method: "GET";
+    path: "/recipe/{recipeId}";
+    params: {
+        recipeId: string;
     };
     response: {
         code: 404;
-        information: "user.notfound";
-        body?: undefined;
-    } | {
-        code: 401;
-        information: "user.invalid.password";
+        information: "recipe.notfound";
         body?: undefined;
     } | {
         code: 200;
-        information: "user.logged";
+        information: "recipe.found";
+        body: Recipe;
+    };
+}) | ({
+    method: "POST";
+    path: "/confirm-recipe-creation/{recipeTransactionId}";
+    params: {
+        recipeTransactionId: string;
+    };
+    response: {
+        code: 404;
+        information: "recipeTransaction.notfound";
+        body?: undefined;
+    } | {
+        code: 400;
+        information: "recipe.creation.failed";
+        body?: undefined;
+    } | {
+        code: 201;
+        information: "recipe.created";
         body: string;
+    };
+}) | ({
+    method: "POST";
+    path: "/generate-recipe";
+    body: {
+        ingredients: string[];
+        intolerances?: (string[] | undefined) | undefined;
+        numberOfPersons?: (number | undefined) | undefined;
+    };
+    response: {
+        code: 400;
+        information: "parsing.failed";
+        body?: undefined;
+    } | {
+        code: 400;
+        information: "recipe.invalid";
+        body?: undefined;
+    } | {
+        code: 200;
+        information: "recipe.generated";
+        body: GeneratedRecipe;
+    };
+}) | ({
+    method: "GET";
+    path: "/find-recipes-from-newest-to-oldest";
+    response: {
+        code: 422;
+        information: "recipes.get.failed";
+        body?: undefined;
+    } | {
+        code: 200;
+        information: "recipes.get";
+        body: RecipeList;
+    };
+}) | ({
+    method: "POST";
+    path: "/recipe/retry-generate/{recipeTransactionId}";
+    params: {
+        recipeTransactionId: string;
+    };
+    response: {
+        code: 404;
+        information: "recipeTransaction.notfound";
+        body?: undefined;
+    } | {
+        code: 400;
+        information: "parsing.failed";
+        body?: undefined;
+    } | {
+        code: 400;
+        information: "recipe.invalid";
+        body?: undefined;
+    } | {
+        code: 200;
+        information: "recipe.retry.generated";
+        body: GeneratedRecipe;
     };
 });
 

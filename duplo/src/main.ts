@@ -1,8 +1,9 @@
 import "@duplojs/node";
+import "@duplojs/node/globals";
 import { Duplo, useProcessBuilder, useRouteBuilder } from "@duplojs/core";
 import { envs } from "./envs";
-import "./routes";
 import { cors } from "./plugins/cors";
+import "./routes";
 
 const duplo = new Duplo({
 	environment: envs.ENVIRONMENT,
@@ -11,15 +12,16 @@ const duplo = new Duplo({
 	plugins: [cors(envs.CORS_ALLOW_ORIGIN)],
 });
 
-const { host, port } = duplo.config;
+const {
+	host,
+	port,
+} = duplo.config;
 
 duplo.register(
 	...useProcessBuilder.getAllCreatedProcess(),
 	...useRouteBuilder.getAllCreatedRoute(),
 );
 
-await duplo
-	.launch()
-	.then(
-		() => void console.log(`Duplo is running on http://${host}:${port}`),
-	);
+await duplo.launch(
+	() => void console.log(`Duplo is running on http://${host}:${port}`),
+);

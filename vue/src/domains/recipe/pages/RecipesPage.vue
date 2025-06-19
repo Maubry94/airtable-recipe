@@ -1,45 +1,67 @@
 <script setup lang="ts">
 import { routerPageName } from "@/router/routerPageName";
-import { mockRecipes } from "@/mocks/recipesData";
 import { ref, computed } from "vue";
 import TheIcon from "@/components/TheIcon.vue";
 import { TheButton } from "@/components/ui/button";
 import { TheInput } from "@/components/ui/input";
 import { TheSelect, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import RecipeCard from "@/domains/recipe/components/RecipeCard.vue";
+import { useGetRecipesPage } from "../composables/useGetRecipesPage";
+
+type DishType = "all" | "Entrée" | "Plat principal" | "Dessert";
+type PersonCount = "all" | "1-2" | "3-4" | "5-6" | "7+";
 
 const { RECIPE_CREATE_PAGE } = routerPageName;
 const searchQuery = ref("");
-const selectedDishType = ref("all");
-const selectedPersonCount = ref("all");
+const selectedDishType = ref<DishType>("all");
+const selectedPersonCount = ref<PersonCount>("all");
 
-const dishTypes = ["all", "Entrée", "Plat principal", "Dessert", "Accompagnement"];
-const personCounts = ["all", "1-2", "3-4", "5-6", "7+"];
+const {
+	recipes,
+} = useGetRecipesPage();
 
-const filteredRecipes = computed(() => mockRecipes.filter((recipe) => {
-	const PERSONS_COUNT = {
-		TWO: 2,
-		THREE: 3,
-		FOUR: 4,
-		FIVE: 5,
-		SIX: 6,
-		SEVEN: 7,
-	};
+const dishTypes: DishType[] = [
+	"all",
+	"Entrée",
+	"Plat principal",
+	"Dessert",
+];
+const personCounts: PersonCount[] = [
+	"all",
+	"1-2",
+	"3-4",
+	"5-6",
+	"7+",
+];
 
-	const matchesSearch = recipe.fields.name.toLowerCase().includes(searchQuery.value.toLowerCase());
-	const matchesDishType = selectedDishType.value === "all" || recipe.fields.dishType === selectedDishType.value;
-	const matchesPersonCount = selectedPersonCount.value === "all"
-            || (selectedPersonCount.value === "1-2" && recipe.fields.PersonCount <= PERSONS_COUNT.TWO)
+const filteredRecipes = computed(
+	() => recipes.value?.records.filter(
+		(recipe) => {
+			const PERSONS_COUNT = {
+				TWO: 2,
+				THREE: 3,
+				FOUR: 4,
+				FIVE: 5,
+				SIX: 6,
+				SEVEN: 7,
+			};
+
+			const matchesSearch = recipe.fields.name.toLowerCase().includes(searchQuery.value.toLowerCase());
+			//const matchesDishType = selectedDishType.value === "all" || recipe.fields.dishType === selectedDishType.value;
+			const matchesPersonCount = selectedPersonCount.value === "all"
+            || (selectedPersonCount.value === "1-2" && recipe.fields.personCount <= PERSONS_COUNT.TWO)
             || (selectedPersonCount.value === "3-4"
-                && recipe.fields.PersonCount >= PERSONS_COUNT.THREE
-                && recipe.fields.PersonCount <= PERSONS_COUNT.FOUR)
+                && recipe.fields.personCount >= PERSONS_COUNT.THREE
+                && recipe.fields.personCount <= PERSONS_COUNT.FOUR)
             || (selectedPersonCount.value === "5-6"
-                && recipe.fields.PersonCount >= PERSONS_COUNT.FIVE
-                && recipe.fields.PersonCount <= PERSONS_COUNT.SIX)
-            || (selectedPersonCount.value === "7+" && recipe.fields.PersonCount >= PERSONS_COUNT.SEVEN);
+                && recipe.fields.personCount >= PERSONS_COUNT.FIVE
+                && recipe.fields.personCount <= PERSONS_COUNT.SIX)
+            || (selectedPersonCount.value === "7+" && recipe.fields.personCount >= PERSONS_COUNT.SEVEN);
 
-	return matchesSearch && matchesDishType && matchesPersonCount;
-}));
+			return matchesSearch /*&& matchesDishType*/ && matchesPersonCount;
+		},
+	),
+);
 
 function clearFilters() {
 	searchQuery.value = "";
@@ -56,7 +78,10 @@ function clearFilters() {
 					Toutes les recettes
 				</h1>
 
-				<p class="mt-1 text-muted-foreground">
+				<p
+					class="mt-1 text-muted-foreground"
+					v-if="filteredRecipes"
+				>
 					{{ filteredRecipes.length }} recette{{ filteredRecipes.length > 1 ? 's' : '' }} disponible{{ filteredRecipes.length > 1 ? 's' : '' }}
 				</p>
 			</div>
@@ -135,7 +160,7 @@ function clearFilters() {
 		</div>
 
 		<div
-			v-if="filteredRecipes.length > 0"
+			v-if="filteredRecipes && filteredRecipes.length > 0"
 			class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
 		>
 			<RecipeCard

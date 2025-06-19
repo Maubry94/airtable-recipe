@@ -15,8 +15,8 @@ export const envs = zod
 		ENVIRONMENT: zod.enum(["DEV", "PROD"]),
 		AIRTABLE_BASE_URL: zod.string().url(),
 		AIRTABLE_API_KEY: zod.string(),
-		JWT_KEY: zod.string(),
-		JWT_TIME: zod.coerce.number(),
+		OPENAI_API_KEY: zod.string(),
+		OPENAI_BASE_URL: zod.string().url(),
 		CORS_ALLOW_ORIGIN: zod.string(),
 	})
 	.parse(process.env);

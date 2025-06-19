@@ -7,34 +7,16 @@ import { TheCard, CardContent, CardHeader, CardTitle } from "@/components/ui/car
 import { TheBadge } from "@/components/ui/badge";
 import { TheProgress } from "@/components/ui/progress";
 import { TheAlert, AlertDescription } from "@/components/ui/alert";
-import { mockRecipes, mockIngredients, mockIntolerances } from "@/mocks/recipesData";
+import { useGetRecipe } from "../composables/useGetRecipe";
 
 const route = useRoute();
 const router = useRouter();
 
-const recipe = computed(() => mockRecipes.find((rcp) => rcp.id === route.params.id));
-
-const recipeIngredients = computed(() => {
-	if (!recipe.value) {
-		return [];
-	}
-	return recipe.value.fields.ingredients
-		.map((ingredientId) => mockIngredients.find((igd) => igd.id === ingredientId))
-		.filter(Boolean);
-});
-
-const recipeIntolerances = computed(() => {
-	if (!recipe.value?.fields.intolerances) {
-		return [];
-	}
-	return recipe.value.fields.intolerances
-		.map((intoleranceId) => mockIntolerances.find((itl) => itl.id === intoleranceId))
-		.filter(Boolean);
-});
-
-function goBack() {
-	router.back();
-}
+const {
+	recipe,
+} = useGetRecipe(
+	computed(() => String(route.params.id)),
+);
 
 const maxNutrition = {
 	proteins: 50,
@@ -53,9 +35,18 @@ const nutritionProgress = computed(() => {
 	}
 
 	return {
-		proteins: Math.min((recipe.value.fields.Proteins / maxNutrition.proteins) * HUNDRED, HUNDRED),
-		carbohydrates: Math.min((recipe.value.fields.Carbohydrates / maxNutrition.carbohydrates) * HUNDRED, HUNDRED),
-		lipids: Math.min((recipe.value.fields.Lipids / maxNutrition.lipids) * HUNDRED, HUNDRED),
+		proteins: Math.min(
+			(recipe.value.fields.numberOfProteins / maxNutrition.proteins) * HUNDRED,
+			HUNDRED,
+		),
+		carbohydrates: Math.min(
+			(recipe.value.fields.numberOfCarbohydrates / maxNutrition.carbohydrates) * HUNDRED,
+			HUNDRED,
+		),
+		lipids: Math.min(
+			(recipe.value.fields.numberOfLipids / maxNutrition.lipids) * HUNDRED,
+			HUNDRED,
+		),
 	};
 });
 </script>
@@ -68,7 +59,7 @@ const nutritionProgress = computed(() => {
 		<div class="mb-8">
 			<TheButton
 				variant="ghost"
-				@click="goBack"
+				@click="router.back"
 				class="mb-4"
 			>
 				<TheIcon name="arrowLeft" />
@@ -96,7 +87,7 @@ const nutritionProgress = computed(() => {
 								name="users"
 								size="xs"
 							/>
-							{{ recipe.fields.PersonCount }} personnes
+							{{ recipe.fields.personCount }} personnes
 						</div>
 
 						<div class="flex gap-1 items-center">
@@ -123,7 +114,7 @@ const nutritionProgress = computed(() => {
 							<div class="grid grid-cols-2 gap-4 text-center">
 								<div class="rounded bg-orange-50 p-3">
 									<div class="text-2xl font-bold text-orange-600">
-										{{ Math.round(recipe.fields.Calories) }}
+										{{ Math.round(recipe.fields.totalCalories) }}
 									</div>
 
 									<div class="text-sm text-muted-foreground">
@@ -147,7 +138,7 @@ const nutritionProgress = computed(() => {
 									<div class="flex justify-between text-sm mb-1">
 										<span>Protéines</span>
 
-										<span>{{ recipe.fields.Proteins }}g</span>
+										<span>{{ recipe.fields.numberOfProteins }}g</span>
 									</div>
 
 									<TheProgress
@@ -160,7 +151,7 @@ const nutritionProgress = computed(() => {
 									<div class="flex justify-between text-sm mb-1">
 										<span>Glucides</span>
 
-										<span>{{ recipe.fields.Carbohydrates }}g</span>
+										<span>{{ recipe.fields.numberOfCarbohydrates }}g</span>
 									</div>
 
 									<TheProgress
@@ -173,7 +164,7 @@ const nutritionProgress = computed(() => {
 									<div class="flex justify-between text-sm mb-1">
 										<span>Lipides</span>
 
-										<span>{{ recipe.fields.Lipids }}g</span>
+										<span>{{ recipe.fields.numberOfLipids }}g</span>
 									</div>
 
 									<TheProgress
@@ -198,15 +189,11 @@ const nutritionProgress = computed(() => {
 					<CardContent>
 						<div class="grid gap-3 sm:grid-cols-2">
 							<div
-								v-for="ingredient in recipeIngredients"
-								:key="ingredient?.id"
+								v-for="ingredient in recipe.fields.ingredients"
+								:key="ingredient.id"
 								class="flex items-center justify-between rounded-lg border p-3"
 							>
-								<span class="font-medium">{{ ingredient?.fields.name }}</span>
-
-								<TheBadge variant="secondary">
-									{{ ingredient?.fields.category }}
-								</TheBadge>
+								<span class="font-medium">{{ ingredient.name }}</span>
 							</div>
 						</div>
 					</CardContent>
@@ -219,12 +206,12 @@ const nutritionProgress = computed(() => {
 
 					<CardContent>
 						<p class="text-muted-foreground leading-relaxed">
-							{{ recipe.fields.preparationInstructions }}
+							{{ recipe.fields.instructions }}
 						</p>
 					</CardContent>
 				</TheCard>
 
-				<TheCard v-if="recipeIntolerances.length > 0">
+				<TheCard v-if="recipe.fields.intolerances.length > 0">
 					<CardHeader>
 						<CardTitle class="flex gap-2 items-center">
 							<TheIcon
@@ -239,17 +226,17 @@ const nutritionProgress = computed(() => {
 					<CardContent>
 						<div class="space-y-3">
 							<TheAlert
-								v-for="intolerance in recipeIntolerances"
-								:key="intolerance?.id"
+								v-for="intolerance in recipe.fields.intolerances"
+								:key="intolerance.id"
 								class="border-amber-200 bg-amber-50"
 							>
 								<AlertDescription>
 									<div class="font-medium text-amber-800">
-										{{ intolerance?.fields.name }}
+										{{ intolerance.name }}
 									</div>
 
 									<div class="text-sm text-amber-700 mt-1">
-										{{ intolerance?.fields.description }}
+										{{ intolerance.description }}
 									</div>
 								</AlertDescription>
 							</TheAlert>
@@ -273,7 +260,7 @@ const nutritionProgress = computed(() => {
 					<CardContent>
 						<TheAlert>
 							<AlertDescription>
-								{{ recipe.fields.nutritionalSummary.value }}
+								{{ recipe.fields.nutritionalSummary }}
 							</AlertDescription>
 						</TheAlert>
 
@@ -281,13 +268,13 @@ const nutritionProgress = computed(() => {
 							<div class="flex justify-between">
 								<span class="text-muted-foreground">Vitamines :</span>
 
-								<span class="font-medium">{{ recipe.fields.Vitamins }}</span>
+								<span class="font-medium">{{ recipe.fields.vitamins }}</span>
 							</div>
 
 							<div class="flex justify-between">
 								<span class="text-muted-foreground">Minéraux :</span>
 
-								<span class="font-medium">{{ recipe.fields.Minerals }}</span>
+								<span class="font-medium">{{ recipe.fields.minerals }}</span>
 							</div>
 						</div>
 					</CardContent>
@@ -307,7 +294,7 @@ const nutritionProgress = computed(() => {
 					<CardContent>
 						<TheAlert class="border-blue-200 bg-blue-50">
 							<AlertDescription class="text-blue-700">
-								{{ recipe.fields.improvementSuggestions.value }}
+								{{ recipe.fields.improvementSuggestions }}
 							</AlertDescription>
 						</TheAlert>
 					</CardContent>
@@ -356,7 +343,7 @@ const nutritionProgress = computed(() => {
 			</p>
 
 			<TheButton
-				@click="goBack"
+				@click="router.back"
 				variant="outline"
 			>
 				<TheIcon

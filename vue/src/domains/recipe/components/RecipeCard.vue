@@ -3,10 +3,10 @@ import { routerPageName } from "@/router/routerPageName";
 import TheIcon from "@/components/TheIcon.vue";
 import { TheCard, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { TheBadge } from "@/components/ui/badge";
-import type { Recipe } from "@/lib/api-client/types/duplojsTypesCodegen";
+import type { RecipeList } from "@/lib/api-client/types/duplojsTypesCodegen";
 
 interface Props {
-	recipe: Recipe;
+	recipe: RecipeList["records"][number];
 }
 
 const props = defineProps<Props>();

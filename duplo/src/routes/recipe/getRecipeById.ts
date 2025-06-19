@@ -15,54 +15,50 @@ useBuilder()
 		(pickup) => pickup("recipeId"),
 	)
 	.cut(
-		({ pickup, dropper }) => {
+		async({ pickup, dropper }) => {
 			const recipe = pickup("recipe");
-			const ingredients: {
+			const computedIngredients: {
 				id: string;
 				name: string;
 			}[] = [];
-			const intolerances: {
+			const computedIntolerances: {
 				id: string;
 				name: string;
 				description: string;
 			}[] = [];
 
-			recipe.fields.ingredients?.forEach(
-				async(ingredientId) => {
-					const airtableResponse = await AirtableAPI.findIngredientById(ingredientId);
+			for (const id of recipe.fields.ingredients ?? []) {
+				const airtableResponse = await AirtableAPI.findIngredientById(id);
 
-					if (airtableResponse.code === OkHttpResponse.code) {
-						const { body } = airtableResponse;
-						ingredients.push({
-							id: body.id,
-							name: body.fields.name,
-						});
-					}
-				},
-			);
+				if (airtableResponse.ok) {
+					const { body } = airtableResponse;
+					computedIngredients.push({
+						id: body.id,
+						name: body.fields.name,
+					});
+				}
+			}
 
-			recipe.fields.intolerances?.forEach(
-				async(intoleranceId) => {
-					const airtableResponse = await AirtableAPI.findIntoleranceById(intoleranceId);
+			for (const id of recipe.fields.intolerances ?? []) {
+				const airtableResponse = await AirtableAPI.findIntoleranceById(id);
 
-					if (airtableResponse.code === OkHttpResponse.code) {
-						const { body } = airtableResponse;
-						intolerances.push({
-							id: body.id,
-							name: body.fields.name,
-							description: body.fields.description ?? "",
-						});
-					}
-				},
-			);
+				if (airtableResponse.ok) {
+					const { body } = airtableResponse;
+					computedIntolerances.push({
+						id: body.id,
+						name: body.fields.name,
+						description: body.fields.description ?? "",
+					});
+				}
+			}
 
 			return dropper({
 				recipe: {
 					...recipe,
 					fields: {
 						...recipe.fields,
-						ingredients: ingredients,
-						intolerances: intolerances,
+						ingredients: computedIngredients,
+						intolerances: computedIntolerances,
 					},
 				},
 			});

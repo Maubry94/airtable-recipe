@@ -21,14 +21,6 @@ import {
 import { useRouter } from "vue-router";
 import { routerPageName } from "@/router/routerPageName";
 import {
-	DialogFooter,
-	DialogDescription,
-	DialogTitle,
-	DialogHeader,
-	DialogContent,
-	TheDialog,
-} from "@/components/ui/dialog";
-import {
 	TagsInput,
 	TagsInputInput,
 	TagsInputItem,
@@ -38,6 +30,7 @@ import {
 import { duploClient } from "@/lib/api-client";
 import type { GeneratedRecipe } from "@/lib/api-client/types/duplojsTypesCodegen";
 import { uselastRecipeTransactionIdLocalStorage } from "../composables/useLastRecipeTransactionId";
+import GeneredRecipeCard from "../components/GeneredRecipeCard.vue";
 
 const router = useRouter();
 const { RECIPE_DETAIL_PAGE } = routerPageName;
@@ -387,117 +380,12 @@ async function confirmRecipeCreation() {
 						Réinitialiser
 					</TheButton>
 
-					<TheDialog v-model:open="isModelOpen">
-						<DialogContent class="max-w-3xl max-h-[90vh] overflow-hidden">
-							<DialogHeader>
-								<DialogTitle>Recette générée</DialogTitle>
-
-								<DialogDescription>
-									Voici la recette que vous venez de générer.
-								</DialogDescription>
-							</DialogHeader>
-
-							<!-- Scrollable content area -->
-							<div
-								class="overflow-y-auto pr-4 space-y-4"
-								style="max-height:60vh"
-							>
-								<div v-if="generatedRecipe?.recipe">
-									<p><strong>Nom :</strong> {{ generatedRecipe.recipe.name }}</p>
-
-									<img
-										:src="generatedRecipe.recipe.image"
-										alt="Image de la recette"
-										class="w-48 h-48 object-cover mb-4 rounded"
-									>
-
-									<div class="grid grid-cols-2 gap-4">
-										<p><strong>Pour :</strong> {{ generatedRecipe.recipe.personCount }} personnes</p>
-
-										<p><strong>Type de plat :</strong> {{ generatedRecipe.recipe.dishType }}</p>
-
-										<p><strong>Calories :</strong> {{ generatedRecipe.recipe.totalCalories }} kcal</p>
-
-										<p><strong>Protéines :</strong> {{ generatedRecipe.recipe.numberOfProteins }} g</p>
-
-										<p><strong>Glucides :</strong> {{ generatedRecipe.recipe.numberOfCarbohydrates }} g</p>
-
-										<p><strong>Lipides :</strong> {{ generatedRecipe.recipe.numberOfLipids }} g</p>
-									</div>
-
-									<p v-if="generatedRecipe.recipe.vitamins">
-										<strong>Vitamines :</strong> {{ generatedRecipe.recipe.vitamins }}
-									</p>
-
-									<p v-if="generatedRecipe.recipe.minerals">
-										<strong>Minéraux :</strong> {{ generatedRecipe.recipe.minerals }}
-									</p>
-
-									<div v-if="generatedRecipe.recipe.instructions">
-										<strong>Instructions :</strong>
-
-										<p class="whitespace-pre-line">
-											{{ generatedRecipe.recipe.instructions }}
-										</p>
-									</div>
-
-									<div>
-										<p><strong>Ingrédients :</strong></p>
-
-										<ul class="list-disc pl-6 space-y-2">
-											<li
-												v-for="(ingredient, index) in generatedRecipe.recipe.ingredients"
-												:key="index"
-												class="flex items-center gap-2"
-											>
-												<span>
-													{{ ingredient.name }} — {{ ingredient.quantity }} {{ ingredient.measurementUnit }}
-												</span>
-
-												<img
-													:src="ingredient.image"
-													alt="Image ingrédient"
-													class="w-12 h-12 object-cover rounded"
-												>
-											</li>
-										</ul>
-									</div>
-
-									<div>
-										<p><strong>Intolérances :</strong></p>
-
-										<ul class="list-disc pl-6 space-y-1">
-											<li
-												v-for="(intolerance, index) in generatedRecipe.recipe.intolerances"
-												:key="index"
-											>
-												{{ intolerance.name }}
-												<span v-if="intolerance.description"> — {{ intolerance.description }}</span>
-											</li>
-										</ul>
-									</div>
-								</div>
-							</div>
-
-							<!-- Footer fixed at the bottom of dialog -->
-							<DialogFooter class="pt-4 border-t mt-4">
-								<TheButton
-									variant="outline"
-									class="btn"
-									@click="retryGenerateRecipe"
-								>
-									Re-générer
-								</TheButton>
-
-								<TheButton
-									class="btn"
-									@click="confirmRecipeCreation"
-								>
-									Confirmer la création
-								</TheButton>
-							</DialogFooter>
-						</DialogContent>
-					</TheDialog>
+					<GeneredRecipeCard
+						v-model:is-open="isModelOpen"
+						:generated-recipe="generatedRecipe"
+						@retry="retryGenerateRecipe"
+						@confirm="confirmRecipeCreation"
+					/>
 				</div>
 
 				<TheCard>

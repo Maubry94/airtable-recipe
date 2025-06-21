@@ -18,6 +18,11 @@ import {
 	Trash2,
 	Check,
 	Loader,
+	BookOpen,
+	Heart,
+	Gem,
+	AlertCircle,
+	RefreshCw,
 } from "lucide-vue-next";
 
 const iconMapper = {
@@ -39,6 +44,11 @@ const iconMapper = {
 	trash2: Trash2,
 	check: Check,
 	loader: Loader,
+	bookOpen: BookOpen,
+	heart: Heart,
+	gem: Gem,
+	alertCircle: AlertCircle,
+	refreshCw: RefreshCw,
 };
 
 const sizeMapper = {

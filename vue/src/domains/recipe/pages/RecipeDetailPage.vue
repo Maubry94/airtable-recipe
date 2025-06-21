@@ -68,11 +68,19 @@ const nutritionProgress = computed(() => {
 
 			<div class="grid gap-8 lg:grid-cols-3">
 				<div class="lg:col-span-2">
-					<div class="rounded-lg bg-muted p-8 mb-6">
-						<div class="flex h-32 items-center justify-center">
+					<div class="rounded-lg bg-muted p-8 mb-6 h-64">
+						<div class="h-full w-full flex items-center justify-center overflow-hidden rounded-lg">
+							<img
+								v-if="recipe.fields.image"
+								:src="recipe.fields.image"
+								alt="Image de la recette"
+								class="w-full h-full object-cover rounded-lg"
+							>
+
 							<TheIcon
+								v-else
 								name="chefHat"
-								size="7xl"
+								size="2xl"
 							/>
 						</div>
 					</div>

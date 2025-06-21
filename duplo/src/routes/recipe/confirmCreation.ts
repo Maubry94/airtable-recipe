@@ -34,6 +34,7 @@ useBuilder()
 				instructions: recipe.instructions,
 			});
 
+			const FIRST_RECORD_INDEX = 0;
 			return match(airtableResponse)
 				.with(
 					{ code: 422 },
@@ -41,7 +42,7 @@ useBuilder()
 				)
 				.with(
 					{ code: 200 },
-					({ body }) => dropper({ createdRecipeId: body.id }),
+					({ body }) => dropper({ createdRecipeId: body.records[FIRST_RECORD_INDEX].id }),
 				)
 				.exhaustive();
 		},
@@ -55,6 +56,8 @@ useBuilder()
 			const createdIngredientIds: string[] = [];
 			const createdIntoleranceIds: string[] = [];
 
+			const FIRST_RECORD_INDEX = 0;
+
 			recipeTransaction.recipe.ingredients.forEach(
 				async(ingredient) => {
 					const airtableResponse = await AirtableAPI.createIngredient({
@@ -66,7 +69,7 @@ useBuilder()
 					});
 
 					if (airtableResponse.code === OkHttpResponse.code) {
-						createdIngredientIds.push(airtableResponse.body.id);
+						createdIngredientIds.push(airtableResponse.body.records[FIRST_RECORD_INDEX].id);
 					}
 				},
 			);
@@ -80,7 +83,7 @@ useBuilder()
 					});
 
 					if (airtableResponse.code === OkHttpResponse.code) {
-						createdIntoleranceIds.push(airtableResponse.body.id);
+						createdIntoleranceIds.push(airtableResponse.body.records[FIRST_RECORD_INDEX].id);
 					}
 				},
 			);
@@ -95,8 +98,9 @@ useBuilder()
 
 			await jsonDatabase.delete(`${recipeTransactionPath}/${recipeTransaction.id}`);
 
-			return dropper(null);
+			return dropper({ createdRecipeId });
 		},
+		["createdRecipeId"],
 	)
 	.handler(
 		(pickup) => {

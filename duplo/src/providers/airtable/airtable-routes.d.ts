@@ -1,5 +1,5 @@
-import { type CreateIngredientPayload, type IngredientAirtable } from "./types/ingredient";
-import { type CreateIntolerancePayload, type IntoleranceAirtable } from "./types/intolerance";
+import { type IngredientListAirtable, type CreateIngredientPayload, type IngredientAirtable } from "./types/ingredient";
+import { type IntoleranceListAirtable, type CreateIntolerancePayload, type IntoleranceAirtable } from "./types/intolerance";
 import { type UpdateRecipePayload, type CreateRecipePayload, type RecipeAirtable, type RecipeListAirtable } from "./types/recipe";
 
 interface AirtableUnprocessableEntityError {
@@ -99,7 +99,7 @@ export type AirtableRecipeRoutes =
 			| {
 				code: 200;
 				information: undefined;
-				body: RecipeAirtable;
+				body: RecipeListAirtable;
 				ok: true;
 			} | {
 				code: 422;
@@ -115,7 +115,7 @@ export type AirtableRecipeRoutes =
 			| {
 				code: 200;
 				information: undefined;
-				body: RecipeAirtable;
+				body: IntoleranceListAirtable;
 				ok: true;
 			} | {
 				code: 422;
@@ -131,7 +131,7 @@ export type AirtableRecipeRoutes =
 			| {
 				code: 200;
 				information: undefined;
-				body: RecipeAirtable;
+				body: IngredientListAirtable;
 				ok: true;
 			} | {
 				code: 422;

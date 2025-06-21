@@ -26,11 +26,11 @@ La réponse doit être un JSON strictement conforme au schéma suivant :
   numberOfCarbohydrates: number;
   // Quantité de lipides pour 100g de plat fini
   numberOfLipids: number;
-  // (Optionnel) Liste des vitamines présentes dans le plat
+  // Liste des vitamines présentes dans le plat
   vitamins?: string;
-  // (Optionnel) Liste des minéraux présents dans le plat
+  // Liste des minéraux présents dans le plat
   minerals?: string;
-  // (Optionnel) Instructions de préparation, sous forme d'étapes numérotées
+  // Instructions de préparation, sous forme d'étapes numérotées
   instructions?: string;
   // Liste des ingrédients utilisés dans la recette
   ingredients: [
@@ -50,7 +50,7 @@ La réponse doit être un JSON strictement conforme au schéma suivant :
     {
       // Nom de l'intolérance
       name: string;
-      // (Optionnel) Description de l'intolérance
+      // Description de l'intolérance
       description?: string;
     }
   ];
@@ -88,11 +88,11 @@ La réponse doit être un JSON strictement conforme au schéma suivant :
   numberOfCarbohydrates: number;
   // Quantité de lipides pour 100g de plat fini
   numberOfLipids: number;
-  // (Optionnel) Liste des vitamines présentes dans le plat
+  // Liste des vitamines présentes dans le plat
   vitamins?: string;
-  // (Optionnel) Liste des minéraux présents dans le plat
+  // Liste des minéraux présents dans le plat
   minerals?: string;
-  // (Optionnel) Instructions de préparation, sous forme d'étapes numérotées
+  // Instructions de préparation, sous forme d'étapes numérotées
   instructions?: string;
   // Liste des ingrédients utilisés dans la recette
   ingredients: [
@@ -112,7 +112,7 @@ La réponse doit être un JSON strictement conforme au schéma suivant :
     {
       // Nom de l'intolérance
       name: string;
-      // (Optionnel) Description de l'intolérance
+      // Description de l'intolérance
       description?: string;
     }
   ];

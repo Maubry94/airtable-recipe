@@ -260,7 +260,7 @@ const nutritionProgress = computed(() => {
 					<CardContent>
 						<TheAlert>
 							<AlertDescription>
-								{{ recipe.fields.nutritionalSummary }}
+								{{ recipe.fields.nutritionalSummary || "Aucun résumé nutritionnel." }}
 							</AlertDescription>
 						</TheAlert>
 
@@ -294,7 +294,7 @@ const nutritionProgress = computed(() => {
 					<CardContent>
 						<TheAlert class="border-blue-200 bg-blue-50">
 							<AlertDescription class="text-blue-700">
-								{{ recipe.fields.improvementSuggestions }}
+								{{ recipe.fields.improvementSuggestions || "Aucune suggestion d'amélioration." }}
 							</AlertDescription>
 						</TheAlert>
 					</CardContent>

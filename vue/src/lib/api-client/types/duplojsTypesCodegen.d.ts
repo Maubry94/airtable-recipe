@@ -41,7 +41,7 @@ export { Recipe };
 
 type GeneratedRecipe = {
     recipeTransactionId: string;
-    generatedRecipe: {
+    recipe: {
         name: string;
         image: string;
         personCount: number;

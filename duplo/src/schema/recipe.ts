@@ -41,6 +41,6 @@ export namespace Recipe {
 
 	export const generatedRecipe = zod.object({
 		recipeTransactionId: zod.string(),
-		generatedRecipe: recipePromptSchema,
+		recipe: recipePromptSchema,
 	});
 }

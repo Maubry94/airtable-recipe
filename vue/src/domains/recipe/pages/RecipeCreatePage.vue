@@ -1,15 +1,16 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref } from "vue";
 import { useSonner } from "@/composables/useSonner";
 import TheIcon from "@/components/TheIcon.vue";
 import { TheButton } from "@/components/ui/button";
-import { TheInput } from "@/components/ui/input";
-import { TheTextarea } from "@/components/ui/textarea";
-import { TheCard, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { TheBadge } from "@/components/ui/badge";
-import { TheSelect, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+	TheCard,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
 import { TheLabel } from "@/components/ui/label";
-import { TheCheckbox } from "@/components/ui/checkbox";
 import {
 	NumberField,
 	NumberFieldContent,
@@ -17,106 +18,178 @@ import {
 	NumberFieldIncrement,
 	NumberFieldInput,
 } from "@/components/ui/number-field";
-import { mockIngredients, mockIntolerances } from "@/mocks/recipesData";
 import { useRouter } from "vue-router";
 import { routerPageName } from "@/router/routerPageName";
+import {
+	DialogFooter,
+	DialogDescription,
+	DialogTitle,
+	DialogHeader,
+	DialogContent,
+	TheDialog,
+} from "@/components/ui/dialog";
+import {
+	TagsInput,
+	TagsInputInput,
+	TagsInputItem,
+	TagsInputItemDelete,
+	TagsInputItemText,
+} from "@/components/ui/tags-input";
+import { duploClient } from "@/lib/api-client";
+import type { GeneratedRecipe } from "@/lib/api-client/types/duplojsTypesCodegen";
+import { uselastRecipeTransactionIdLocalStorage } from "../composables/useLastRecipeTransactionId";
 
 const router = useRouter();
-const { RECIPE_PAGE } = routerPageName;
+const { RECIPE_DETAIL_PAGE } = routerPageName;
 const {
-	sonnerDev,
+	sonnerWarning,
+	sonnerMessage,
 } = useSonner();
 
-const recipeName = ref("");
+const {
+	setRecipeTransactionId,
+	lastRecipeTransactionId,
+} = uselastRecipeTransactionIdLocalStorage();
+
 const DEFAUT_PERSON_COUNT = 4;
 const personCount = ref(DEFAUT_PERSON_COUNT);
-const dishType = ref("");
-const selectedIngredients = ref<string[]>([]);
-const selectedIntolerances = ref<string[]>([]);
-const customInstructions = ref("");
 const isGenerating = ref(false);
+const isModelOpen = ref(false);
 
-const ZERO = 0;
-const isFormValid = computed(() => recipeName.value.trim() !== ""
-        && personCount.value > ZERO
-        && dishType.value !== ""
-        && selectedIngredients.value.length > ZERO);
+const inputIngredients = ref<string[]>([]);
+const inputIntolerances = ref<string[]>([]);
+const generatedRecipe = ref<GeneratedRecipe | null>(null);
 
-const selectedIngredientsData = computed(() => selectedIngredients.value
-	.map((id) => mockIngredients.find((ingredient) => ingredient.id === id))
-	.filter(Boolean));
+const MIN_ITEMS = 1;
 
-const selectedIntolerancesData = computed(() => selectedIntolerances.value
-	.map((id) => mockIntolerances.find((intolerance) => intolerance.id === id))
-	.filter(Boolean));
-
-const dishTypes = ["Entrée", "Plat principal", "Dessert", "Accompagnement"];
-
-function goBack() {
-	router.back();
+function resetForm() {
+	personCount.value = 4;
+	inputIngredients.value = [];
+	inputIntolerances.value = [];
 }
 
-function addIngredient(ingredientId: string) {
-	if (!selectedIngredients.value.includes(ingredientId)) {
-		selectedIngredients.value.push(ingredientId);
-	}
-}
-
-const NOT_FOUND = -1;
-const SPLICE_INDEX = 1;
-function removeIngredient(ingredientId: string) {
-	const index = selectedIngredients.value.indexOf(ingredientId);
-	if (index > NOT_FOUND) {
-		selectedIngredients.value.splice(index, SPLICE_INDEX);
-	}
-}
-function handleIntoleranceChange(intoleranceId: string, checked: boolean | "indeterminate") {
-	const isChecked = checked === true;
-
-	if (isChecked && !selectedIntolerances.value.includes(intoleranceId)) {
-		selectedIntolerances.value.push(intoleranceId);
-	} else if (!isChecked) {
-		selectedIntolerances.value = selectedIntolerances.value.filter((id) => id !== intoleranceId);
-	}
-}
-
-const API_SIMULATION_DELAY = 2000;
 async function generateRecipe() {
-	if (!isFormValid.value) {
+	if (inputIngredients.value.length < MIN_ITEMS) {
 		return;
 	}
 
 	isGenerating.value = true;
 
-	// Fake API call simulation
-	await new Promise((resolve) => {
-		setTimeout(resolve, API_SIMULATION_DELAY);
-	});
+	await duploClient.post(
+		"/generate-recipe",
+		{
+			body: {
+				numberOfPersons: personCount.value,
+				ingredients: inputIngredients.value,
+				intolerances: inputIntolerances.value,
+			},
+		},
+	)
+		.whenInformation(
+			"recipe.invalid",
+			() => {
+				resetForm();
+				sonnerWarning("Les informations fournies sont invalides. Veuillez vérifier vos entrées.");
+			},
+		)
+		.whenInformation(
+			"parsing.failed",
+			() => {
+				sonnerWarning("La génération de la recette a échoué. Veuillez réessayer.");
+			},
+		)
+		.whenInformation(
+			"recipe.generated",
+			({ body }) => {
+				generatedRecipe.value = body;
+				isModelOpen.value = true;
+				setRecipeTransactionId(body.recipeTransactionId);
+				sonnerMessage("Recette générée avec succès !");
+			},
+		);
 
 	isGenerating.value = false;
-	isGenerating.value = false;
-
-	const formData = {
-		name: recipeName.value,
-		personCount: personCount.value,
-		dishType: dishType.value,
-		selectedIngredients: selectedIngredientsData.value.map((index) => index?.fields.name).join(", "),
-		selectedIntolerances: selectedIntolerancesData.value.map((index) => index?.fields.name).join(", "),
-		customInstructions: customInstructions.value,
-	};
-
-	sonnerDev("Recette générée avec succès !", formData);
-
-	void router.push({ name: RECIPE_PAGE });
 }
 
-function resetForm() {
-	recipeName.value = "";
-	personCount.value = 4;
-	dishType.value = "";
-	selectedIngredients.value = [];
-	selectedIntolerances.value = [];
-	customInstructions.value = "";
+async function retryGenerateRecipe() {
+	if (!lastRecipeTransactionId.value) {
+		return;
+	}
+
+	await duploClient.post(
+		"/recipe/retry-generate/{recipeTransactionId}",
+		{
+			params: {
+				recipeTransactionId: lastRecipeTransactionId.value,
+			},
+		},
+	)
+		.whenInformation(
+			"parsing.failed",
+			() => {
+				sonnerWarning("La génération de la recette a échoué. Veuillez réessayer.");
+			},
+		)
+		.whenInformation(
+			"recipe.invalid",
+			() => {
+				resetForm();
+				sonnerWarning("Les informations fournies sont invalides. Veuillez vérifier vos entrées.");
+			},
+		)
+		.whenInformation(
+			"recipeTransaction.notfound",
+			() => {
+				sonnerWarning("Vous n'avez pas généré de recette dernièrement.");
+			},
+		)
+		.whenInformation(
+			"recipe.retry.generated",
+			({ body }) => {
+				generatedRecipe.value = body;
+				isModelOpen.value = true;
+				setRecipeTransactionId(body.recipeTransactionId);
+				sonnerMessage("Recette re-générée avec succès !");
+			},
+		);
+}
+
+async function confirmRecipeCreation() {
+	if (!lastRecipeTransactionId.value) {
+		return;
+	}
+
+	await duploClient.post(
+		"/confirm-recipe-creation/{recipeTransactionId}",
+		{
+			params: {
+				recipeTransactionId: lastRecipeTransactionId.value,
+			},
+		},
+	)
+		.whenInformation(
+			"recipeTransaction.notfound",
+			() => {
+				sonnerWarning("Vous n'avez pas généré de recette dernièrement.");
+			},
+		)
+		.whenInformation(
+			"recipe.creation.failed",
+			() => {
+				sonnerWarning("La création de la recette a échoué. Veuillez réessayer.");
+			},
+		)
+		.whenInformation(
+			"recipe.created",
+			({ body }) => {
+				sonnerMessage("Recette créée avec succès !");
+
+				void router.push({
+					name: RECIPE_DETAIL_PAGE,
+					params: { id: body },
+				});
+			},
+		);
 }
 </script>
 
@@ -125,7 +198,7 @@ function resetForm() {
 		<div class="mb-8">
 			<TheButton
 				variant="ghost"
-				@click="goBack"
+				@click="router.back"
 				class="mb-4"
 			>
 				<TheIcon name="arrowLeft" />
@@ -164,42 +237,6 @@ function resetForm() {
 					</CardHeader>
 
 					<CardContent class="space-y-4">
-						<div class="grid gap-4 sm:grid-cols-2">
-							<div class="space-y-2">
-								<TheLabel for="recipe-name">
-									Nom de la recette
-								</TheLabel>
-
-								<TheInput
-									id="recipe-name"
-									v-model="recipeName"
-									placeholder="Ex: Tarte au chocolat épicée"
-								/>
-							</div>
-
-							<div class="space-y-2">
-								<TheLabel for="dish-type">
-									Type de plat
-								</TheLabel>
-
-								<TheSelect v-model="dishType">
-									<SelectTrigger>
-										<SelectValue placeholder="Choisir un type" />
-									</SelectTrigger>
-
-									<SelectContent>
-										<SelectItem
-											v-for="type in dishTypes"
-											:key="type"
-											:value="type"
-										>
-											{{ type }}
-										</SelectItem>
-									</SelectContent>
-								</TheSelect>
-							</div>
-						</div>
-
 						<div class="space-y-2">
 							<NumberField
 								id="person-count"
@@ -237,52 +274,20 @@ function resetForm() {
 						<div
 							class="mb-4"
 						>
-							<h4 class="text-sm font-medium mb-2">
-								Ingrédients sélectionnés :
-							</h4>
+							<div>
+								<TagsInput v-model="inputIngredients">
+									<TagsInputItem
+										v-for="item in inputIngredients"
+										:key="item"
+										:value="item"
+									>
+										<TagsInputItemText />
 
-							<div class="flex flex-wrap gap-2">
-								<TheBadge
-									v-for="ingredient in selectedIngredientsData"
-									:key="ingredient?.id"
-									variant="secondary"
-									class="cursor-pointer hover:bg-red-100 hover:text-red-700"
-									@click="removeIngredient(ingredient?.id || '')"
-								>
-									{{ ingredient?.fields.name }}
-									<TheIcon
-										name="trash2"
-										size="xs"
-									/>
-								</TheBadge>
-							</div>
-						</div>
+										<TagsInputItemDelete />
+									</TagsInputItem>
 
-						<div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-							<div
-								v-for="ingredient in mockIngredients"
-								:key="ingredient.id"
-								class="flex items-center justify-between rounded-lg border p-3 cursor-pointer hover:bg-gray-50"
-								:class="{
-									'bg-orange-50 border-orange-200': selectedIngredients.includes(ingredient.id)
-								}"
-								@click="selectedIngredients.includes(ingredient.id) ? removeIngredient(ingredient.id) : addIngredient(ingredient.id)"
-							>
-								<div>
-									<div class="font-medium">
-										{{ ingredient.fields.name }}
-									</div>
-
-									<div class="text-xs text-muted-foreground">
-										{{ ingredient.fields.category }}
-									</div>
-								</div>
-
-								<TheIcon
-									v-if="selectedIngredients.includes(ingredient.id)"
-									name="check"
-									class="text-orange-600"
-								/>
+									<TagsInputInput placeholder="Chocolat, fraise..." />
+								</TagsInput>
 							</div>
 						</div>
 					</CardContent>
@@ -299,49 +304,20 @@ function resetForm() {
 
 					<CardContent>
 						<div class="space-y-3">
-							<div
-								v-for="intolerance in mockIntolerances"
-								:key="intolerance.id"
-								class="flex items-start space-x-3"
-							>
-								<TheCheckbox
-									:id="intolerance.id"
-									:model-value="selectedIntolerances.includes(intolerance.id)"
-									@update:model-value="(checked) => handleIntoleranceChange(intolerance.id, checked)"
-								/>
+							<TagsInput v-model="inputIntolerances">
+								<TagsInputItem
+									v-for="item in inputIntolerances"
+									:key="item"
+									:value="item"
+								>
+									<TagsInputItemText />
 
-								<div class="flex-1">
-									<TheLabel
-										:for="intolerance.id"
-										class="text-sm font-medium cursor-pointer"
-									>
-										{{ intolerance.fields.name }}
-									</TheLabel>
+									<TagsInputItemDelete />
+								</TagsInputItem>
 
-									<p class="text-xs text-muted-foreground mt-1">
-										{{ intolerance.fields.description }}
-									</p>
-								</div>
-							</div>
+								<TagsInputInput placeholder="Noisettes, cacahuètes..." />
+							</TagsInput>
 						</div>
-					</CardContent>
-				</TheCard>
-
-				<TheCard>
-					<CardHeader>
-						<CardTitle>Instructions spéciales (optionnel)</CardTitle>
-
-						<CardDescription>
-							Ajoutez des instructions particulières pour votre recette
-						</CardDescription>
-					</CardHeader>
-
-					<CardContent>
-						<TheTextarea
-							v-model="customInstructions"
-							placeholder="Ex : Sans cuisson, recette rapide, utiliser un robot..."
-							rows="3"
-						/>
 					</CardContent>
 				</TheCard>
 			</div>
@@ -353,22 +329,6 @@ function resetForm() {
 					</CardHeader>
 
 					<CardContent class="space-y-3">
-						<div class="flex items-center justify-between">
-							<span class="text-sm text-muted-foreground">Nom :</span>
-
-							<span class="text-sm font-medium">
-								{{ recipeName || "Non défini" }}
-							</span>
-						</div>
-
-						<div class="flex items-center justify-between">
-							<span class="text-sm text-muted-foreground">Type:</span>
-
-							<span class="text-sm font-medium">
-								{{ dishType || "Non défini" }}
-							</span>
-						</div>
-
 						<div class="flex items-center justify-between">
 							<span class="text-sm text-muted-foreground">Personnes :</span>
 
@@ -385,7 +345,7 @@ function resetForm() {
 							<span class="text-sm text-muted-foreground">Ingrédients :</span>
 
 							<span class="text-sm font-medium">
-								{{ selectedIngredients.length }}
+								{{ inputIngredients.length }}
 							</span>
 						</div>
 
@@ -393,7 +353,7 @@ function resetForm() {
 							<span class="text-sm text-muted-foreground">Restrictions :</span>
 
 							<span class="text-sm font-medium">
-								{{ selectedIntolerances.length }}
+								{{ inputIntolerances.length }}
 							</span>
 						</div>
 					</CardContent>
@@ -402,7 +362,7 @@ function resetForm() {
 				<div class="space-y-3">
 					<TheButton
 						@click="generateRecipe"
-						:disabled="!isFormValid || isGenerating"
+						:disabled="isGenerating"
 						class="w-full"
 						size="lg"
 					>
@@ -426,6 +386,118 @@ function resetForm() {
 					>
 						Réinitialiser
 					</TheButton>
+
+					<TheDialog v-model:open="isModelOpen">
+						<DialogContent class="max-w-3xl max-h-[90vh] overflow-hidden">
+							<DialogHeader>
+								<DialogTitle>Recette générée</DialogTitle>
+
+								<DialogDescription>
+									Voici la recette que vous venez de générer.
+								</DialogDescription>
+							</DialogHeader>
+
+							<!-- Scrollable content area -->
+							<div
+								class="overflow-y-auto pr-4 space-y-4"
+								style="max-height:60vh"
+							>
+								<div v-if="generatedRecipe?.recipe">
+									<p><strong>Nom :</strong> {{ generatedRecipe.recipe.name }}</p>
+
+									<img
+										:src="generatedRecipe.recipe.image"
+										alt="Image de la recette"
+										class="w-48 h-48 object-cover mb-4 rounded"
+									>
+
+									<div class="grid grid-cols-2 gap-4">
+										<p><strong>Pour :</strong> {{ generatedRecipe.recipe.personCount }} personnes</p>
+
+										<p><strong>Type de plat :</strong> {{ generatedRecipe.recipe.dishType }}</p>
+
+										<p><strong>Calories :</strong> {{ generatedRecipe.recipe.totalCalories }} kcal</p>
+
+										<p><strong>Protéines :</strong> {{ generatedRecipe.recipe.numberOfProteins }} g</p>
+
+										<p><strong>Glucides :</strong> {{ generatedRecipe.recipe.numberOfCarbohydrates }} g</p>
+
+										<p><strong>Lipides :</strong> {{ generatedRecipe.recipe.numberOfLipids }} g</p>
+									</div>
+
+									<p v-if="generatedRecipe.recipe.vitamins">
+										<strong>Vitamines :</strong> {{ generatedRecipe.recipe.vitamins }}
+									</p>
+
+									<p v-if="generatedRecipe.recipe.minerals">
+										<strong>Minéraux :</strong> {{ generatedRecipe.recipe.minerals }}
+									</p>
+
+									<div v-if="generatedRecipe.recipe.instructions">
+										<strong>Instructions :</strong>
+
+										<p class="whitespace-pre-line">
+											{{ generatedRecipe.recipe.instructions }}
+										</p>
+									</div>
+
+									<div>
+										<p><strong>Ingrédients :</strong></p>
+
+										<ul class="list-disc pl-6 space-y-2">
+											<li
+												v-for="(ingredient, index) in generatedRecipe.recipe.ingredients"
+												:key="index"
+												class="flex items-center gap-2"
+											>
+												<span>
+													{{ ingredient.name }} — {{ ingredient.quantity }} {{ ingredient.measurementUnit }}
+												</span>
+
+												<img
+													:src="ingredient.image"
+													alt="Image ingrédient"
+													class="w-12 h-12 object-cover rounded"
+												>
+											</li>
+										</ul>
+									</div>
+
+									<div>
+										<p><strong>Intolérances :</strong></p>
+
+										<ul class="list-disc pl-6 space-y-1">
+											<li
+												v-for="(intolerance, index) in generatedRecipe.recipe.intolerances"
+												:key="index"
+											>
+												{{ intolerance.name }}
+												<span v-if="intolerance.description"> — {{ intolerance.description }}</span>
+											</li>
+										</ul>
+									</div>
+								</div>
+							</div>
+
+							<!-- Footer fixed at the bottom of dialog -->
+							<DialogFooter class="pt-4 border-t mt-4">
+								<TheButton
+									variant="outline"
+									class="btn"
+									@click="retryGenerateRecipe"
+								>
+									Re-générer
+								</TheButton>
+
+								<TheButton
+									class="btn"
+									@click="confirmRecipeCreation"
+								>
+									Confirmer la création
+								</TheButton>
+							</DialogFooter>
+						</DialogContent>
+					</TheDialog>
 				</div>
 
 				<TheCard>

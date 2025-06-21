@@ -8,9 +8,14 @@ import { TheBadge } from "@/components/ui/badge";
 import { TheProgress } from "@/components/ui/progress";
 import { TheAlert, AlertDescription } from "@/components/ui/alert";
 import { useGetRecipe } from "../composables/useGetRecipe";
+import { routerPageNameRecipe } from "../router";
 
 const route = useRoute();
 const router = useRouter();
+
+const {
+	RECIPE_PAGE,
+} = routerPageNameRecipe;
 
 const {
 	recipe,
@@ -59,7 +64,9 @@ const nutritionProgress = computed(() => {
 		<div class="mb-8">
 			<TheButton
 				variant="ghost"
-				@click="router.back"
+				@click="router.push({
+					name: RECIPE_PAGE
+				})"
 				class="mb-4"
 			>
 				<TheIcon name="arrowLeft" />

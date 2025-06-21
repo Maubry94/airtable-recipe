@@ -47,7 +47,6 @@ const filteredRecipes = computed(
 			};
 
 			const matchesSearch = recipe.fields.name.toLowerCase().includes(searchQuery.value.toLowerCase());
-			//const matchesDishType = selectedDishType.value === "all" || recipe.fields.dishType === selectedDishType.value;
 			const matchesPersonCount = selectedPersonCount.value === "all"
             || (selectedPersonCount.value === "1-2" && recipe.fields.personCount <= PERSONS_COUNT.TWO)
             || (selectedPersonCount.value === "3-4"
@@ -58,7 +57,7 @@ const filteredRecipes = computed(
                 && recipe.fields.personCount <= PERSONS_COUNT.SIX)
             || (selectedPersonCount.value === "7+" && recipe.fields.personCount >= PERSONS_COUNT.SEVEN);
 
-			return matchesSearch /*&& matchesDishType*/ && matchesPersonCount;
+			return matchesSearch && matchesPersonCount;
 		},
 	),
 );
@@ -190,7 +189,9 @@ function clearFilters() {
 
 			<TheButton as-child>
 				<RouterLink :to="{ name: RECIPE_CREATE_PAGE }">
-					<TheIcon name="plus" />
+					<TheIcon
+						name="plus"
+					/>
 					Créer ma première recette
 				</RouterLink>
 			</TheButton>

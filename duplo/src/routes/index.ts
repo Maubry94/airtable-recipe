@@ -1,4 +1,4 @@
-import "./recipe/getRecipeById";
+import "./recipe/findRecipeById";
 import "./recipe/confirmCreation";
 import "./recipe/generate";
 import "./recipe/findRecipesFromNewestToOldest";

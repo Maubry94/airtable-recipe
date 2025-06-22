@@ -1,4 +1,4 @@
-import { baseAirtableSchema } from "../providers/airtable/types/airtable";
+import { baseAirtableSchema } from "../providers/airtable/types";
 import { dishTypeEnum, recipeListAirtableSchema } from "../providers/airtable/types/recipe";
 import { recipePromptSchema } from "../providers/ia/schemas/prompt";
 
@@ -43,4 +43,10 @@ export namespace Recipe {
 		recipeTransactionId: zod.string(),
 		recipe: recipePromptSchema,
 	});
+
+	export const generatedRecipeRules = {
+		numberOfPersons: {
+			min: 1,
+		},
+	};
 }

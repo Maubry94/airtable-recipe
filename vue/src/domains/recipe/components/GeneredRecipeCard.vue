@@ -26,7 +26,7 @@ const emit = defineEmits<{
 	confirm: [];
 }>();
 
-const isModelOpen = computed({
+const isModalOpen = computed({
 	get: () => props.isOpen,
 	set: (value: boolean) => void emit("update:isOpen", value),
 });
@@ -41,7 +41,7 @@ function handleConfirm() {
 </script>
 
 <template>
-	<TheDialog v-model:open="isModelOpen">
+	<TheDialog v-model:open="isModalOpen">
 		<DialogContent class="max-w-4xl p-0 overflow-hidden">
 			<div class="px-6 py-4 border-b border-border bg-gray-50">
 				<DialogHeader class="space-y-0">

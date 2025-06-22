@@ -1,5 +1,5 @@
 import { zod, type ZodSpace } from "@duplojs/core";
-import { baseAirtableSchema } from "./airtable";
+import { baseAirtableSchema } from ".";
 
 export const intoleranceFieldsSchema = zod.object({
 	name: zod.string(),
@@ -11,22 +11,27 @@ export const intoleranceFieldsSchema = zod.object({
 	recipeSuggestions: zod.string().optional(),
 });
 
-export const intoleranceAirtableSchema = baseAirtableSchema.extend({
-	fields: intoleranceFieldsSchema,
-});
+export const intoleranceAirtableSchema = baseAirtableSchema
+	.extend({
+		fields: intoleranceFieldsSchema,
+	});
 export type IntoleranceAirtable = ZodSpace.infer<typeof intoleranceAirtableSchema>;
 
-export const intolerancePayloadSchema = zod.object({
-	records: zod.object({
-		fields: intoleranceFieldsSchema.pick({
-			name: true,
-			description: true,
-			relatedRecipes: true,
-			recipeImpact: true,
-			recipeSuggestions: true,
-		}),
-	}).array(),
-});
+export const intolerancePayloadSchema = zod
+	.object({
+		records: zod
+			.object({
+				fields: intoleranceFieldsSchema
+					.pick({
+						name: true,
+						description: true,
+						relatedRecipes: true,
+						recipeImpact: true,
+						recipeSuggestions: true,
+					}),
+			})
+			.array(),
+	});
 export type CreateIntolerancePayload = ZodSpace.infer<typeof intolerancePayloadSchema>;
 
 export const intoleranceListAirtableSchema = zod.object({

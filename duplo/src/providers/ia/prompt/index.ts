@@ -127,14 +127,14 @@ interface InputBuildRecipePrompt {
 	intolerances: string[];
 }
 
-export function buildRecipePrompt(params: InputBuildRecipePrompt) {
+export function buildRecipeIAPrompt(params: InputBuildRecipePrompt) {
 	return GENERATE_RECIPE_PROMPT
 		.replace(/{ingredients}/g, params.ingredients.join(", "))
 		.replace(/{numberOfPersons}/g, params.numberOfPersons.toString())
 		.replace(/{intolerances}/g, params.intolerances.join(", "));
 }
 
-export function buildRetryRecipePrompt(
+export function buildRetryRecipeIAPrompt(
 	params: InputBuildRecipePrompt & { previousRecipeName: string },
 ) {
 	return RETRY_GENERATE_RECIPE_PROMPT

@@ -46,7 +46,6 @@ const {
 
 const DEFAUT_PERSON_COUNT = 4;
 const personCount = ref(DEFAUT_PERSON_COUNT);
-const isGenerating = ref(false);
 const isModelOpen = ref(false);
 
 const inputIngredients = ref<string[]>([]);
@@ -66,8 +65,6 @@ async function generateRecipe() {
 		return;
 	}
 
-	isGenerating.value = true;
-
 	await duploClient.post(
 		"/generate-recipe",
 		{
@@ -86,12 +83,6 @@ async function generateRecipe() {
 			},
 		)
 		.whenInformation(
-			"parsing.failed",
-			() => {
-				sonnerWarning("La génération de la recette a échoué. Veuillez réessayer.");
-			},
-		)
-		.whenInformation(
 			"recipe.generated",
 			({ body }) => {
 				generatedRecipe.value = body;
@@ -100,8 +91,6 @@ async function generateRecipe() {
 				sonnerMessage("Recette générée avec succès !");
 			},
 		);
-
-	isGenerating.value = false;
 }
 
 async function retryGenerateRecipe() {
@@ -118,12 +107,6 @@ async function retryGenerateRecipe() {
 		},
 	)
 		.whenInformation(
-			"parsing.failed",
-			() => {
-				sonnerWarning("La génération de la recette a échoué. Veuillez réessayer.");
-			},
-		)
-		.whenInformation(
 			"recipe.invalid",
 			() => {
 				resetForm();
@@ -137,7 +120,7 @@ async function retryGenerateRecipe() {
 			},
 		)
 		.whenInformation(
-			"recipe.retry.generated",
+			"recipe.retryGenerated",
 			({ body }) => {
 				generatedRecipe.value = body;
 				isModelOpen.value = true;
@@ -355,21 +338,14 @@ async function confirmRecipeCreation() {
 				<div class="space-y-3">
 					<TheButton
 						@click="generateRecipe"
-						:disabled="isGenerating"
+						:disabled="inputIngredients.length < MIN_ITEMS"
 						class="w-full"
 						size="lg"
 					>
 						<TheIcon
-							v-if="isGenerating"
-							name="loader"
-							class="animate-spin"
-						/>
-
-						<TheIcon
-							v-else
 							name="sparkles"
 						/>
-						{{ isGenerating ? "Génération..." : "Générer la recette" }}
+						Générer la recette
 					</TheButton>
 
 					<TheButton

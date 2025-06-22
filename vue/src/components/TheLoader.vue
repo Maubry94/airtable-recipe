@@ -8,7 +8,7 @@ const { isLoading } = useLoader();
 <template>
 	<div
 		v-if="isLoading"
-		class="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm"
+		class="fixed inset-0 z-9999 flex items-center justify-center bg-background/80 backdrop-blur-sm"
 	>
 		<div class="flex flex-col items-center justify-center space-y-4 text-center">
 			<div class="rounded-full bg-muted p-6 animate-pulse">

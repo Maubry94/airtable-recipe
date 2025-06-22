@@ -1,5 +1,5 @@
 import { zod, type ZodSpace } from "@duplojs/core";
-import { baseAirtableSchema } from "./airtable";
+import { baseAirtableSchema } from ".";
 import { dishTypeEnum } from "./recipe";
 
 export const ingredientMeasurementUnitEnum = zod.enum([

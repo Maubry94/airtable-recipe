@@ -2,7 +2,7 @@ import { BadRequestHttpResponse, CreatedHttpResponse, makeResponseContract, OkHt
 import { iWantRecipeTransactionExistById } from "../../checker/recipeTransaction";
 import { AirtableAPI } from "../../providers/airtable/airtable";
 import { match } from "ts-pattern";
-import { jsonDatabase, recipeTransactionPath } from "../../providers/json-db";
+import { deleteRecipeTransaction } from "../../providers/json-db/recipeTransaction";
 
 useBuilder()
 	.createRoute("POST", "/confirm-recipe-creation/{recipeTransactionId}")
@@ -34,7 +34,6 @@ useBuilder()
 				instructions: recipe.instructions,
 			});
 
-			const FIRST_RECORD_INDEX = 0;
 			return match(airtableResponse)
 				.with(
 					{ code: 422 },
@@ -42,7 +41,10 @@ useBuilder()
 				)
 				.with(
 					{ code: 200 },
-					({ body }) => dropper({ createdRecipeId: body.records[FIRST_RECORD_INDEX].id }),
+					({ body }) => {
+						const [{ id }] = body.records;
+						return dropper({ createdRecipeId: id });
+					},
 				)
 				.exhaustive();
 		},
@@ -56,37 +58,33 @@ useBuilder()
 			const createdIngredientIds: string[] = [];
 			const createdIntoleranceIds: string[] = [];
 
-			const FIRST_RECORD_INDEX = 0;
+			for (const ingredient of recipeTransaction.recipe.ingredients) {
+				const airtableResponse = await AirtableAPI.createIngredient({
+					name: ingredient.name,
+					quantity: ingredient.quantity,
+					measurementUnit: ingredient.measurementUnit,
+					image: ingredient.image,
+					relatedRecipes: [createdRecipeId],
+				});
 
-			recipeTransaction.recipe.ingredients.forEach(
-				async(ingredient) => {
-					const airtableResponse = await AirtableAPI.createIngredient({
-						name: ingredient.name,
-						quantity: ingredient.quantity,
-						measurementUnit: ingredient.measurementUnit,
-						image: ingredient.image,
-						relatedRecipes: [createdRecipeId],
-					});
+				if (airtableResponse.code === OkHttpResponse.code) {
+					const [{ id }] = airtableResponse.body.records;
+					createdIngredientIds.push(id);
+				}
+			}
 
-					if (airtableResponse.code === OkHttpResponse.code) {
-						createdIngredientIds.push(airtableResponse.body.records[FIRST_RECORD_INDEX].id);
-					}
-				},
-			);
+			for (const intolerance of recipeTransaction.recipe.intolerances) {
+				const airtableResponse = await AirtableAPI.createIntolerance({
+					name: intolerance.name,
+					description: intolerance.description,
+					relatedRecipes: [createdRecipeId],
+				});
 
-			recipeTransaction.recipe.intolerances.forEach(
-				async(intolerance) => {
-					const airtableResponse = await AirtableAPI.createIntolerance({
-						name: intolerance.name,
-						description: intolerance.description,
-						relatedRecipes: [createdRecipeId],
-					});
-
-					if (airtableResponse.code === OkHttpResponse.code) {
-						createdIntoleranceIds.push(airtableResponse.body.records[FIRST_RECORD_INDEX].id);
-					}
-				},
-			);
+				if (airtableResponse.code === OkHttpResponse.code) {
+					const [{ id }] = airtableResponse.body.records;
+					createdIntoleranceIds.push(id);
+				}
+			}
 
 			await AirtableAPI.updateRecipe({
 				recipeId: createdRecipeId,
@@ -96,7 +94,7 @@ useBuilder()
 				},
 			});
 
-			await jsonDatabase.delete(`${recipeTransactionPath}/${recipeTransaction.id}`);
+			await deleteRecipeTransaction(recipeTransaction.id);
 
 			return dropper({ createdRecipeId });
 		},

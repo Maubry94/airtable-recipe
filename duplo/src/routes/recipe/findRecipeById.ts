@@ -74,5 +74,9 @@ useBuilder()
 				recipe,
 			);
 		},
-		makeResponseContract(OkHttpResponse, "recipe.found", Recipe.index),
+		makeResponseContract(
+			OkHttpResponse,
+			"recipe.found",
+			Recipe.index,
+		),
 	);

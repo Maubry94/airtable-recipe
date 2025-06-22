@@ -141,10 +141,6 @@ type CodegenRoutes = ({
     };
     response: {
         code: 400;
-        information: "parsing.failed";
-        body?: undefined;
-    } | {
-        code: 400;
         information: "recipe.invalid";
         body?: undefined;
     } | {
@@ -176,15 +172,11 @@ type CodegenRoutes = ({
         body?: undefined;
     } | {
         code: 400;
-        information: "parsing.failed";
-        body?: undefined;
-    } | {
-        code: 400;
         information: "recipe.invalid";
         body?: undefined;
     } | {
         code: 200;
-        information: "recipe.retry.generated";
+        information: "recipe.retryGenerated";
         body: GeneratedRecipe;
     };
 });

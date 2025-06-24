@@ -7,31 +7,31 @@ import { TheInput } from "@/components/ui/input";
 import { TheSelect, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import RecipeCard from "@/domains/recipe/components/RecipeCard.vue";
 import { useGetRecipesPage } from "../composables/useGetRecipesPage";
+import type { Recipe } from "@/lib/api-client/types/duplojsTypesCodegen";
 
-type DishType = "all" | "Entrée" | "Plat principal" | "Dessert";
 type PersonCount = "all" | "1-2" | "3-4" | "5-6" | "7+";
 
 const { RECIPE_CREATE_PAGE } = routerPageName;
 const searchQuery = ref("");
-const selectedDishType = ref<DishType>("all");
+const selectedDishType = ref<Recipe["fields"]["dishType"] | "all">("all");
 const selectedPersonCount = ref<PersonCount>("all");
 
 const {
 	recipes,
 } = useGetRecipesPage();
 
-const dishTypes: DishType[] = [
-	"all",
-	"Entrée",
-	"Plat principal",
-	"Dessert",
-];
 const personCounts: PersonCount[] = [
 	"all",
 	"1-2",
 	"3-4",
 	"5-6",
 	"7+",
+];
+
+const dishTypes: Recipe["fields"]["dishType"][] = [
+	"starter",
+	"dish",
+	"dessert",
 ];
 
 const filteredRecipes = computed(
@@ -57,7 +57,9 @@ const filteredRecipes = computed(
                 && recipe.fields.personCount <= PERSONS_COUNT.SIX)
             || (selectedPersonCount.value === "7+" && recipe.fields.personCount >= PERSONS_COUNT.SEVEN);
 
-			return matchesSearch && matchesPersonCount;
+			const matchesDishTypes = selectedDishType.value === "all" || recipe.fields.dishType === selectedDishType.value;
+
+			return matchesSearch && matchesPersonCount && matchesDishTypes;
 		},
 	),
 );
@@ -119,7 +121,7 @@ function clearFilters() {
 						</SelectItem>
 
 						<SelectItem
-							v-for="type in dishTypes.slice(1)"
+							v-for="type in dishTypes"
 							:key="type"
 							:value="type"
 						>

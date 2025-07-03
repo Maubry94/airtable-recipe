@@ -75,21 +75,19 @@ const nutritionProgress = computed(() => {
 
 			<div class="grid gap-8 lg:grid-cols-3">
 				<div class="lg:col-span-2">
-					<div class="rounded-lg bg-muted p-8 mb-6 h-64">
-						<div class="h-full w-full flex items-center justify-center overflow-hidden rounded-lg">
-							<img
-								v-if="recipe.fields.image"
-								:src="recipe.fields.image"
-								alt="Image de la recette"
-								class="w-full h-full object-cover rounded-lg"
-							>
+					<div class="h-64 mb-6 flex items-center justify-center bg-muted rounded-lg">
+						<img
+							v-if="recipe.fields.image"
+							:src="recipe.fields.image"
+							alt="Image de la recette"
+							class="w-full h-full object-cover rounded-lg"
+						>
 
-							<TheIcon
-								v-else
-								name="chefHat"
-								size="2xl"
-							/>
-						</div>
+						<TheIcon
+							v-else
+							name="chefHat"
+							size="2xl"
+						/>
 					</div>
 
 					<h1 class="text-3xl font-bold mb-2">
@@ -144,6 +142,26 @@ const nutritionProgress = computed(() => {
 
 									<div class="text-sm text-muted-foreground">
 										densité
+									</div>
+								</div>
+
+								<div class="rounded bg-green-50 p-3">
+									<div class="text-2xl font-bold text-green-600">
+										{{ recipe.fields.numberOfCarbohydrates }}
+									</div>
+
+									<div class="text-sm text-muted-foreground">
+										glucides
+									</div>
+								</div>
+
+								<div class="rounded bg-purple-50 p-3">
+									<div class="text-2xl font-bold text-purple-600">
+										{{ recipe.fields.numberOfLipids }}
+									</div>
+
+									<div class="text-sm text-muted-foreground">
+										lipides
 									</div>
 								</div>
 							</div>

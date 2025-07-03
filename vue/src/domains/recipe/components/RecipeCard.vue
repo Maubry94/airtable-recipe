@@ -20,13 +20,19 @@ const { RECIPE_DETAIL_PAGE } = routerPageName;
 		class="group"
 	>
 		<TheCard class="overflow-hidden transition-all pt-0 group-hover:shadow-lg hover:scale-[1.01]">
-			<div class="aspect-video bg-muted p-6">
-				<div class="flex h-full items-center justify-center">
-					<TheIcon
-						name="chefHat"
-						size="4xl"
-					/>
-				</div>
+			<div class="flex h-full items-center justify-center aspect-video bg-muted">
+				<img
+					v-if="recipe.fields.image"
+					:src="recipe.fields.image"
+					alt="Image de la recette"
+					class="w-full h-full object-cover rounded-lg"
+				>
+
+				<TheIcon
+					v-else
+					name="chefHat"
+					size="4xl"
+				/>
 			</div>
 
 			<CardHeader class="pb-3">

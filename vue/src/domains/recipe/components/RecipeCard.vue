@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref } from "vue";
 import { routerPageName } from "@/router/routerPageName";
 import TheIcon from "@/components/TheIcon.vue";
 import { TheCard, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,6 +13,12 @@ interface Props {
 const props = defineProps<Props>();
 
 const { RECIPE_DETAIL_PAGE } = routerPageName;
+
+const imageLoadError = ref(false);
+
+function handleImageError() {
+	imageLoadError.value = true;
+}
 </script>
 
 <template>
@@ -22,10 +29,11 @@ const { RECIPE_DETAIL_PAGE } = routerPageName;
 		<TheCard class="overflow-hidden transition-all pt-0 group-hover:shadow-lg hover:scale-[1.01]">
 			<div class="flex h-full items-center justify-center aspect-video bg-muted">
 				<img
-					v-if="recipe.fields.image"
+					v-if="recipe.fields.image && !imageLoadError"
 					:src="recipe.fields.image"
 					alt="Image de la recette"
 					class="w-full h-full object-cover rounded-lg"
+					@error="handleImageError"
 				>
 
 				<TheIcon
@@ -45,8 +53,8 @@ const { RECIPE_DETAIL_PAGE } = routerPageName;
 				</CardDescription>
 			</CardHeader>
 
-			<CardContent class="pt-0">
-				<div class="space-y-3">
+			<CardContent class="pt-0 flex-1">
+				<div class="space-y-3 h-full flex flex-col justify-between">
 					<div class="flex items-center justify-between text-sm text-muted-foreground">
 						<div class="flex gap-1 items-center">
 							<TheIcon

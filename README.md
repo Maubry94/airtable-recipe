@@ -15,15 +15,15 @@ Dans chacun des dossiers suivants :
 - `/vue`
 - `/duplo`
 
-Effectuez les opérations suivantes :
+Effectuez les opérations suivantes dans le dossier `/duplo` :
 
-1. Copier les fichiers `.env.local.example` :
+1. Copier le fichier `.env.local.example` :
 
    ```bash
    cp .env.local.example .env.local
    ```
 
-2. Remplir les variables d’environnement dans les fichiers ```.env.local```.
+2. Remplir les variables d’environnement dans le fichier ```.env.local```.
 
 ### Lancement du projet
 

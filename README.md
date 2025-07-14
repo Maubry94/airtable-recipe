@@ -12,7 +12,6 @@
 
 Dans chacun des dossiers suivants :
 
-- `/vue`
 - `/duplo`
 
 Effectuez les opérations suivantes dans le dossier `/duplo` :
